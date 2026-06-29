@@ -8,14 +8,14 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
 })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem('portfolio-theme') as Theme | null
-    return stored ?? 'dark'
+    return stored ?? 'light'
   })
 
   useEffect(() => {

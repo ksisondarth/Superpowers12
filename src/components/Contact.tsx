@@ -3,97 +3,115 @@ import { personal } from '../data/portfolioData'
 
 const contacts = [
   {
-    icon: <Mail size={18} className="text-neon" />,
+    icon: Mail,
     label: 'Email',
     value: personal.email,
     href: `mailto:${personal.email}`,
+    external: false,
   },
   {
-    icon: <MessageCircle size={18} className="text-neon" />,
+    icon: MessageCircle,
     label: 'WhatsApp',
     value: personal.phone,
     href: `https://wa.me/${personal.whatsapp.replace('+', '')}`,
     external: true,
+    badge: 'Message Now',
   },
   {
-    icon: <Globe size={18} className="text-neon" />,
+    icon: Globe,
     label: 'Website',
     value: 'keansison.com',
     href: personal.website,
     external: true,
   },
   {
-    icon: <MapPin size={18} className="text-neon" />,
+    icon: MapPin,
     label: 'Location',
     value: personal.location,
     href: null,
+    external: false,
   },
 ]
 
 export default function Contact() {
   return (
-    <section id="contact" className="py-20 md:py-28">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="section-title text-gray-900 dark:text-white">Contact</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">Let's Work Together</p>
+    <section id="contact" className="py-24 md:py-32 bg-light-surface dark:bg-dark-surface">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+
+        {/* Section header */}
+        <div className="mb-16">
+          <span className="section-label">Get in touch</span>
+          <h2 className="section-heading">Contact</h2>
+          <span className="accent-rule" />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-10 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+
           {/* Left — intro */}
           <div>
-            <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg leading-relaxed mb-6">
-              Ready to automate your workflows, build a custom AppSheet system, or modernize your business operations?
-              I'd love to hear from you.
+            <p className="text-light-sub dark:text-dark-sub text-base md:text-[1.05rem]
+              leading-[1.85] mb-6 max-w-md">
+              Ready to automate your workflows, build a custom AppSheet system, or modernize your
+              business operations? I'd love to connect.
             </p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">
-              Based in <span className="text-neon font-mono">{personal.location}</span> and available for remote work worldwide.
+            <p className="text-sm text-light-muted dark:text-dark-muted mb-10">
+              Based in{' '}
+              <span className="font-mono text-accent-light dark:text-accent">{personal.location}</span>
+              {' '}— available for remote work worldwide.
             </p>
 
-            {/* Download CV CTA */}
             <a
               href={personal.cvPdf}
               download="Keanu_Niccolo_Sison_CV.pdf"
-              className="btn-neon w-fit"
+              className="btn-primary w-fit"
             >
-              <Download size={16} />
-              Download My CV (PDF)
+              <Download size={15} strokeWidth={2} />
+              Download CV (PDF)
             </a>
           </div>
 
-          {/* Right — contact cards */}
-          <div className="grid gap-3">
-            {contacts.map(item => (
-              <div
-                key={item.label}
-                className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-dark-border
-                  bg-white dark:bg-dark-card hover:border-neon/50 transition-all duration-300
-                  hover:shadow-[0_0_15px_rgba(57,255,20,0.08)] group"
-              >
-                <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center flex-shrink-0">
-                  {item.icon}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-mono text-gray-400 dark:text-gray-500">{item.label}</p>
-                  {item.href ? (
-                    <a
-                      href={item.href}
-                      {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-neon transition-colors truncate block"
-                    >
-                      {item.value}
-                    </a>
-                  ) : (
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{item.value}</p>
+          {/* Right — contact rows */}
+          <div className="space-y-3">
+            {contacts.map(item => {
+              const Icon = item.icon
+              return (
+                <div key={item.label}
+                  className="card px-5 py-4 flex items-center gap-4 group">
+
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
+                    bg-green-50 dark:bg-accent/10">
+                    <Icon size={16} strokeWidth={1.8} className="text-accent-light dark:text-accent" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-2xs font-mono text-light-muted dark:text-dark-muted uppercase tracking-wide mb-0.5">
+                      {item.label}
+                    </p>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                        className="text-sm font-medium text-light-text dark:text-dark-text
+                          hover:text-accent-light dark:hover:text-accent transition-colors truncate block"
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-medium text-light-text dark:text-dark-text">{item.value}</p>
+                    )}
+                  </div>
+
+                  {'badge' in item && item.badge && (
+                    <span className="text-2xs font-mono px-2.5 py-1 rounded-full whitespace-nowrap
+                      bg-green-50 dark:bg-accent/10
+                      text-accent-light dark:text-accent
+                      border border-green-200 dark:border-accent/20">
+                      {item.badge}
+                    </span>
                   )}
                 </div>
-                {item.label === 'WhatsApp' && (
-                  <span className="ml-auto text-xs bg-neon/10 text-neon border border-neon/20 px-2 py-0.5 rounded-full font-mono whitespace-nowrap">
-                    Chat Now
-                  </span>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

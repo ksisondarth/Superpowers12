@@ -4,99 +4,106 @@ import ThemeToggle from './ThemeToggle'
 import { personal } from '../data/portfolioData'
 
 const navLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
+  { label: 'About',      href: '#about' },
+  { label: 'Skills',     href: '#skills' },
   { label: 'Experience', href: '#experience' },
-  { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Contact', href: '#contact' },
-  { label: 'Community', href: '#community' },
+  { label: 'Portfolio',  href: '#portfolio' },
+  { label: 'Contact',    href: '#contact' },
+  { label: 'Community',  href: '#community' },
 ]
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
+  const [scrolled, setScrolled]     = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handler)
-    return () => window.removeEventListener('scroll', handler)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  const closeMenu = () => setMobileOpen(false)
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/90 dark:bg-dark-bg/90 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-dark-border'
+          ? 'bg-white/95 dark:bg-dark-bg/95 backdrop-blur-sm border-b border-light-border dark:border-dark-border shadow-[0_1px_0_0_rgba(0,0,0,0.06)]'
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+
         {/* Logo */}
-        <a
-          href="#hero"
-          className="text-lg font-bold tracking-tight text-gray-900 dark:text-white hover:text-neon transition-colors"
-        >
-          KN<span className="text-neon">.</span>
+        <a href="#hero" className="text-base font-bold tracking-tight text-light-text dark:text-dark-text
+          hover:text-accent-light dark:hover:text-accent transition-colors">
+          Keanu<span className="text-accent-light dark:text-accent">.</span>
         </a>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-7">
           {navLinks.map(link => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-neon transition-colors relative group"
+              className="text-sm font-medium text-light-sub dark:text-dark-sub
+                hover:text-light-text dark:hover:text-dark-text transition-colors
+                relative group"
             >
               {link.label}
-              <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-neon group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent-light dark:bg-accent
+                group-hover:w-full transition-all duration-250" />
             </a>
           ))}
+        </div>
 
-          {/* PDF download button */}
+        {/* Desktop actions */}
+        <div className="hidden md:flex items-center gap-3">
           <a
             href={personal.cvPdf}
             download="Keanu_Niccolo_Sison_CV.pdf"
-            className="btn-neon text-xs px-4 py-2 rounded-md"
+            className="btn-outline text-xs px-4 py-2"
           >
-            <Download size={14} />
-            PDF CV
+            <Download size={13} strokeWidth={2} />
+            Download CV
           </a>
-
           <ThemeToggle />
         </div>
 
-        {/* Mobile controls */}
-        <div className="flex md:hidden items-center gap-3">
+        {/* Mobile actions */}
+        <div className="flex md:hidden items-center gap-2.5">
           <a
             href={personal.cvPdf}
             download="Keanu_Niccolo_Sison_CV.pdf"
-            className="btn-neon text-xs px-3 py-2 rounded-md"
+            className="btn-outline text-xs px-3 py-2"
           >
-            <Download size={13} />
-            PDF
+            <Download size={13} strokeWidth={2} />
+            CV
           </a>
           <ThemeToggle />
           <button
-            onClick={() => setMobileOpen(prev => !prev)}
-            aria-label="Toggle menu"
-            className="w-9 h-9 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-300 hover:text-neon transition-colors"
+            onClick={() => setMobileOpen(p => !p)}
+            aria-label="Toggle navigation"
+            className="w-9 h-9 flex items-center justify-center rounded-lg
+              border border-light-border dark:border-dark-border
+              text-light-sub dark:text-dark-sub
+              hover:text-light-text dark:hover:text-dark-text transition-colors"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="md:hidden bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border px-4 py-4 flex flex-col gap-3">
+        <div className="md:hidden border-t border-light-border dark:border-dark-border
+          bg-white dark:bg-dark-surface px-5 py-3 flex flex-col">
           {navLinks.map(link => (
             <a
               key={link.href}
               href={link.href}
-              onClick={closeMenu}
-              className="text-sm font-medium py-2 text-gray-700 dark:text-gray-300 hover:text-neon transition-colors border-b border-gray-100 dark:border-dark-border last:border-0"
+              onClick={() => setMobileOpen(false)}
+              className="py-3 text-sm font-medium text-light-sub dark:text-dark-sub
+                hover:text-accent-light dark:hover:text-accent transition-colors
+                border-b border-light-border dark:border-dark-border last:border-0"
             >
               {link.label}
             </a>

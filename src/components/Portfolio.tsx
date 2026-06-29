@@ -1,62 +1,55 @@
-import { ExternalLink, Code2 } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { portfolio } from '../data/portfolioData'
 
 export default function Portfolio() {
   return (
-    <section id="portfolio" className="py-20 md:py-28 bg-gray-100/50 dark:bg-dark-surface/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="section-title text-gray-900 dark:text-white">Portfolio</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">Selected Project Highlights</p>
+    <section id="portfolio" className="py-24 md:py-32 bg-white dark:bg-dark-bg">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+
+        {/* Section header */}
+        <div className="mb-16">
+          <span className="section-label">Projects</span>
+          <h2 className="section-heading">Portfolio</h2>
+          <span className="accent-rule" />
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {portfolio.map((project, i) => (
-            <div
-              key={i}
-              className="flex flex-col p-5 rounded-xl border border-gray-200 dark:border-dark-border
-                bg-white dark:bg-dark-card
-                hover:border-neon/50 hover:shadow-[0_0_24px_rgba(57,255,20,0.1)]
-                transition-all duration-300 group"
-            >
-              {/* Icon */}
-              <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center mb-4">
-                <Code2 size={18} className="text-neon" />
-              </div>
+            <div key={i} className="card p-6 flex flex-col group">
+
+              {/* Project number */}
+              <span className="text-2xs font-mono text-light-muted dark:text-dark-muted mb-4">
+                {String(i + 1).padStart(2, '0')}
+              </span>
 
               {/* Title */}
-              <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
+              <h3 className="font-semibold text-light-text dark:text-dark-text text-sm mb-3">
                 {project.name}
               </h3>
 
               {/* Description */}
-              <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 flex-1">
+              <p className="text-xs text-light-sub dark:text-dark-sub leading-relaxed mb-5 flex-1">
                 {project.description}
               </p>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-1.5 mb-4">
+              <div className="flex flex-wrap gap-1.5 mb-5">
                 {project.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="text-xs px-2 py-0.5 rounded-full font-mono
-                      bg-neon/5 text-neon border border-neon/20"
-                  >
-                    {tag}
-                  </span>
+                  <span key={tag} className="tag">{tag}</span>
                 ))}
               </div>
 
-              {/* Demo link */}
+              {/* CTA */}
               <a
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-neon
-                  hover:underline group-hover:gap-2 transition-all"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold
+                  text-accent-light dark:text-accent
+                  hover:gap-2.5 transition-all duration-200"
               >
                 View Live Demo
-                <ExternalLink size={12} />
+                <ExternalLink size={11} strokeWidth={2} />
               </a>
             </div>
           ))}

@@ -37,106 +37,111 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || '?'
 }
 
+const AVATAR_PALETTE = [
+  '#16A34A','#0284C7','#DC2626','#D97706',
+  '#7C3AED','#DB2777','#0891B2',
+]
+
 function avatarColor(name: string) {
-  const colors = [
-    '#39FF14', '#00bfff', '#ff6b6b', '#ffd700',
-    '#b06aff', '#ff9f43', '#1dd1a1',
-  ]
   let hash = 0
   for (const c of name) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff
-  return colors[Math.abs(hash) % colors.length]
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]
 }
 
 export default function CommunityChat() {
   const [messages, setMessages] = useState<Message[]>(loadMessages)
-  const [name, setName] = useState('')
-  const [text, setText] = useState('')
-  const [error, setError] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [name, setName]         = useState('')
+  const [text, setText]         = useState('')
+  const [error, setError]       = useState('')
+  const bottomRef               = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    saveMessages(messages)
-  }, [messages])
-
+  useEffect(() => { saveMessages(messages) }, [messages])
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const cleanName = name.trim()
-    const cleanText = text.trim()
-    if (!cleanName) { setError('Please enter your name.'); return }
-    if (!cleanText) { setError('Please enter a message.'); return }
-    if (cleanText.length > 500) { setError('Message too long (max 500 chars).'); return }
+    const n = name.trim(), t = text.trim()
+    if (!n) { setError('Please enter your name.'); return }
+    if (!t) { setError('Please write a message.'); return }
+    if (t.length > 500) { setError('Max 500 characters.'); return }
     setError('')
-    const msg: Message = {
+    setMessages(prev => [...prev, {
       id: `${Date.now()}-${Math.random()}`,
-      name: cleanName,
-      text: cleanText,
-      timestamp: Date.now(),
-    }
-    setMessages(prev => [...prev, msg])
+      name: n, text: t, timestamp: Date.now(),
+    }])
     setText('')
   }
 
-  const deleteMessage = (id: string) => {
-    setMessages(prev => prev.filter(m => m.id !== id))
-  }
-
   return (
-    <section id="community" className="py-20 md:py-28 bg-gray-100/50 dark:bg-dark-surface/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10">
-          <h2 className="section-title text-gray-900 dark:text-white">Community</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-            Leave a message, feedback, or just say hi! Messages are stored locally in your browser.
+    <section id="community" className="py-24 md:py-32 bg-white dark:bg-dark-bg">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8">
+
+        {/* Section header */}
+        <div className="mb-12">
+          <span className="section-label">Say hello</span>
+          <h2 className="section-heading">Community Wall</h2>
+          <span className="accent-rule" />
+          <p className="text-sm text-light-muted dark:text-dark-muted mt-5">
+            Leave a message, ask a question, or share feedback. Messages persist in your browser.
           </p>
         </div>
 
-        {/* Chat window */}
-        <div className="rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card overflow-hidden shadow-sm">
-          {/* Header */}
-          <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg">
-            <MessageSquare size={16} className="text-neon" />
-            <span className="text-sm font-semibold text-gray-800 dark:text-white">Community Wall</span>
-            <span className="ml-auto text-xs font-mono text-gray-400">{messages.length} message{messages.length !== 1 ? 's' : ''}</span>
+        <div className="card overflow-hidden">
+
+          {/* Header bar */}
+          <div className="flex items-center gap-2.5 px-5 py-3.5
+            border-b border-light-border dark:border-dark-border
+            bg-light-surface dark:bg-dark-surface">
+            <MessageSquare size={14} strokeWidth={1.8} className="text-accent-light dark:text-accent" />
+            <span className="text-sm font-semibold text-light-text dark:text-dark-text">Messages</span>
+            <span className="ml-auto text-2xs font-mono text-light-muted dark:text-dark-muted">
+              {messages.length} {messages.length === 1 ? 'entry' : 'entries'}
+            </span>
           </div>
 
-          {/* Messages */}
-          <div className="h-80 overflow-y-auto px-5 py-4 space-y-4">
+          {/* Message list */}
+          <div className="h-72 overflow-y-auto px-5 py-5 space-y-5
+            bg-white dark:bg-dark-card">
             {messages.length === 0 && (
-              <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 dark:text-gray-600 gap-2">
-                <MessageSquare size={32} strokeWidth={1.2} />
-                <p className="text-sm">No messages yet. Be the first to say something!</p>
+              <div className="h-full flex flex-col items-center justify-center gap-3
+                text-light-muted dark:text-dark-muted">
+                <MessageSquare size={28} strokeWidth={1.2} />
+                <p className="text-sm">No messages yet — be the first!</p>
               </div>
             )}
             {messages.map(msg => {
               const color = avatarColor(msg.name)
               return (
                 <div key={msg.id} className="flex items-start gap-3 group">
-                  {/* Avatar */}
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-black"
+                    className="w-7 h-7 rounded-full flex items-center justify-center
+                      text-2xs font-bold flex-shrink-0 text-white"
                     style={{ background: color }}
                   >
                     {getInitial(msg.name)}
                   </div>
-                  {/* Bubble */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">{msg.name}</span>
-                      <span className="text-xs text-gray-400 font-mono">{timeAgo(msg.timestamp)}</span>
+                      <span className="text-xs font-semibold text-light-text dark:text-dark-text">
+                        {msg.name}
+                      </span>
+                      <span className="text-2xs font-mono text-light-muted dark:text-dark-muted">
+                        {timeAgo(msg.timestamp)}
+                      </span>
                     </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{msg.text}</p>
+                    <p className="text-sm text-light-sub dark:text-dark-sub leading-relaxed break-words">
+                      {msg.text}
+                    </p>
                   </div>
-                  {/* Delete (visible on hover) */}
                   <button
-                    onClick={() => deleteMessage(msg.id)}
-                    title="Remove message"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-gray-400 hover:text-red-400"
+                    onClick={() => setMessages(p => p.filter(m => m.id !== msg.id))}
+                    title="Delete"
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded
+                      text-light-muted dark:text-dark-muted hover:text-red-400 transition-opacity"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={12} />
                   </button>
                 </div>
               )
@@ -145,9 +150,10 @@ export default function CommunityChat() {
           </div>
 
           {/* Composer */}
-          <div className="border-t border-gray-200 dark:border-dark-border p-4">
+          <div className="border-t border-light-border dark:border-dark-border px-5 py-4
+            bg-light-surface dark:bg-dark-surface">
             {error && (
-              <p className="text-xs text-red-400 mb-2 font-mono">{error}</p>
+              <p className="text-xs text-red-500 dark:text-red-400 font-mono mb-2">{error}</p>
             )}
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
               <input
@@ -156,31 +162,21 @@ export default function CommunityChat() {
                 onChange={e => setName(e.target.value)}
                 placeholder="Your name"
                 maxLength={40}
-                className="w-full sm:w-32 px-3 py-2 rounded-lg text-sm border border-gray-200 dark:border-dark-border
-                  bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-200 placeholder-gray-400
-                  focus:outline-none focus:border-neon focus:ring-1 focus:ring-neon/30 transition-colors"
+                className="field sm:w-36"
               />
               <input
                 type="text"
                 value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder="Write a message, feedback, or anything…"
+                placeholder="Write something…"
                 maxLength={500}
-                className="flex-1 px-3 py-2 rounded-lg text-sm border border-gray-200 dark:border-dark-border
-                  bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-200 placeholder-gray-400
-                  focus:outline-none focus:border-neon focus:ring-1 focus:ring-neon/30 transition-colors"
+                className="field flex-1"
               />
-              <button
-                type="submit"
-                className="btn-neon px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 justify-center"
-              >
-                <Send size={14} />
+              <button type="submit" className="btn-primary px-4 py-2.5 text-sm justify-center">
+                <Send size={14} strokeWidth={2} />
                 Send
               </button>
             </form>
-            <p className="text-xs text-gray-400 dark:text-gray-600 mt-2 font-mono">
-              Messages are saved in your browser's local storage.
-            </p>
           </div>
         </div>
       </div>
