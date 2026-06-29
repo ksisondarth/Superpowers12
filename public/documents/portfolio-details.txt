@@ -1,0 +1,148 @@
+================================================================================
+PORTFOLIO SOURCE OF TRUTH — KEANU NICCOLO SISON
+================================================================================
+This file is the canonical data source for all portfolio content.
+All sections of the website must reflect the data below exactly.
+================================================================================
+
+PERSONAL INFO
+-------------
+Full Name: Keanu Niccolo Sison
+Title: AppSheet Developer & Process Automation Specialist
+Location: Marikina City, Philippines
+Phone: 0926-626-7336
+WhatsApp: +639266267336
+Email: ksison001@gmail.com
+Website: keansison.com
+Company: Kytus Data Solutions
+LinkedIn: (not provided)
+CV PDF: /documents/Keanu_Niccolo_Sison_CV.pdf
+
+PROFESSIONAL SUMMARY
+--------------------
+Results-driven AppSheet Developer and Process Automation Specialist with extensive
+experience building custom no-code and low-code business systems for academic
+institutions, Google-partnered technology companies, and international clients.
+Deep expertise in AppSheet application development, SVG-driven UI/UX design,
+workflow automation via Make.com and N8N, and data visualization through Looker
+Studio. Proven track record of eliminating operational bottlenecks, reducing
+manual workloads, and delivering scalable, production-ready solutions across CRM,
+inventory management, project management, and document generation systems.
+
+CORE COMPETENCIES
+-----------------
+Category 1: AppSheet Development & SVG UI/UX
+- Expert-level AppSheet application development
+- Custom SVG for UI/UX
+- LongText HTML & Image column types
+- Dynamic KPI widgets & progress trackers
+- Conditional SVG rendering
+- Data URI encoding
+
+Category 2: Automation & Integration
+- Make.com workflow automation
+- N8N workflow automation
+- AI agent development
+- API & webhook integration
+- Google Apps Script
+
+Category 3: Analytics & Data Management
+- Looker Studio interactive dashboards
+- Data modeling & ETL
+- KPI development
+- Google Sheets (advanced functions)
+- Database design & optimization
+- Data cleaning & validation
+- Quality assurance
+
+PROFESSIONAL EXPERIENCE
+-----------------------
+Role 1:
+  Title: Technology Solutions Consultant
+  Company: Google Partner Company
+  Period: 2026 — Present
+  Highlights:
+  - Developed multiple production-ready AppSheet applications for diverse client requirements
+  - Built and maintained polished demo applications showcasing AppSheet capabilities with custom SVG UI components and dynamic dashboard visualizations
+  - Designed document generation systems featuring HTML-to-PDF output and automated revision tracking logic
+  - Led process improvement and automation initiatives integrating AppSheet with Google Workspace, Make.com, and N8N for end-to-end operational workflows
+  - Collaborated directly with clients to assess requirements, scope solutions, and deliver scalable business systems aligned to organizational objectives
+
+Role 2:
+  Title: Database & Process Automation Specialist
+  Company: Ateneo de Manila University, Office of Student Affairs & Services
+  Period: 2021 — Present
+  Highlights:
+  - Built a comprehensive management system encompassing multiple student-facing workflows across departments and offices
+  - Designed custom UI/UX and automated email notification templates for university-wide operational reporting
+  - Led end-to-end system development, maintenance, and continuous process improvement initiatives spanning multiple offices within the university
+  - Drove data analytics and Looker Studio reporting to support evidence-based strategic institutional decisions
+
+Role 3:
+  Title: Tech Lead
+  Company: Front Row Furniture — UK-based Client
+  Period: Nov 2024 — Feb 2026
+  Highlights:
+  - Led end-to-end development of CRM system, Inventory management, and Project management tool
+  - Developed an enterprise ticketing system integrated with team communication platforms via webhooks for streamlined issue resolution
+  - Designed interactive Data Studio dashboards and a logistics delivery planning system providing full operational oversight
+  - Implemented an AI-powered sales chatbot, improving lead response times and pipeline visibility for the sales team
+  - Oversaw technical direction, system architecture decisions, and platform integrations across all business systems
+
+Role 4:
+  Title: Website & AppSheet Developer
+  Company: Elite IP — Consultant
+  Period: 2023 — 2024
+  Highlights:
+  - Developed a complete business website with optimized user process flows and structured content architecture
+  - Built a lead management system with vendor tracking integration and automated follow-up workflows
+  - Created a CRM solution with advanced analytics dashboard for real-time sales pipeline visibility
+
+Role 5:
+  Title: HR Data Analytics Specialist
+  Company: ReadyMan Inc
+  Period: 2017 — 2019
+  Highlights:
+  - Transformed HR operations through advanced data analytics, reporting automation, and process documentation
+  - Built comprehensive KPI dashboards tracking headcount, turnover rates, and end-to-end recruitment metrics
+  - Reduced hiring time by 35% through targeted process optimization and data-driven workflow redesign
+
+PORTFOLIO HIGHLIGHTS
+--------------------
+Project 1:
+  Name: Project Management System
+  Description: Custom AppSheet application for end-to-end project tracking with task assignment, progress monitoring, deadline management, and SVG dashboard visualizations.
+  Demo: https://www.appsheet.com/start/c334d061-def1-4787-bdab-5d088b5d28fd
+  Tags: AppSheet, SVG UI, Dashboard
+
+Project 2:
+  Name: CRM & Lead Management System
+  Description: Advanced CRM solution for lead tracking and pipeline management, featuring lead scoring, automated Make.com follow-up workflows, conversion tracking, and analytics dashboards.
+  Demo: https://www.appsheet.com/start/c1b48401-ad92-478b-98de-5adb9daa7317
+  Tags: CRM, Make.com, Analytics
+
+Project 3:
+  Name: Order Management & POS System
+  Description: Complete point-of-sale and order management system with item selection, quantity management, automatic total calculation, and streamlined order processing workflows.
+  Demo: https://www.appsheet.com/start/d62f57ca-62b0-417b-a39d-e794f7e474b7
+  Tags: POS, AppSheet, Workflow
+
+EDUCATION
+---------
+Degree: Bachelor of Science in Psychology
+Institution: Trinity University of Asia
+Graduated: 2017
+Notes: Transitioned into no-code/low-code systems development through self-directed learning, beginning with advanced Google Sheets and progressing to AppSheet, automation platforms, and data visualization tools.
+
+TECHNICAL SKILLS
+----------------
+Platform: AppSheet (Expert), Google Workspace, Google Sites
+Automation: Make.com, N8N, Google Apps Script, AI Agent Development
+Analytics: Looker Studio, Google Sheets (Advanced), Data Modeling, KPI Frameworks
+UI/UX: AppSheet SVG Design, CONCATENATE Formula SVGs, LongText HTML, Data URI Encoding
+Integration: REST APIs, Webhooks, Supabase, Aircall, Gmail, Google Calendar
+Languages: HTML, CSS, JavaScript (beginner–intermediate), Google Apps Script
+
+================================================================================
+END OF SOURCE OF TRUTH
+================================================================================
