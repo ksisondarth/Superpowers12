@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @property must be top-level, outside any @layer */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes glow-border {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -18,27 +30,16 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* Light mode defaults */
-  body {
     @apply bg-gray-50 text-gray-800;
   }
 
-  /* Dark mode */
   .dark body {
-    @apply bg-dark-bg text-gray-200;
+    @apply bg-[#0a0a0a] text-gray-200;
   }
 }
 
-@layer utilities {
-  /* ---------- Glowing border card animation ---------- */
-  @property --angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
+@layer components {
+  /* ---------- Glowing border card ---------- */
   .glow-card {
     position: relative;
     border-radius: 12px;
@@ -57,27 +58,6 @@
     border-radius: 11px;
     width: 100%;
     height: 100%;
-  }
-
-  @keyframes glow-border {
-    from { --angle: 0deg; }
-    to   { --angle: 360deg; }
-  }
-
-  /* ---------- Neon glow text ---------- */
-  .neon-text {
-    color: #39FF14;
-    text-shadow:
-      0 0 7px rgba(57, 255, 20, 0.8),
-      0 0 15px rgba(57, 255, 20, 0.5),
-      0 0 30px rgba(57, 255, 20, 0.3);
-  }
-
-  /* ---------- Neon glow box ---------- */
-  .neon-glow {
-    box-shadow:
-      0 0 5px rgba(57, 255, 20, 0.4),
-      0 0 15px rgba(57, 255, 20, 0.2);
   }
 
   /* ---------- Neon button ---------- */
@@ -105,7 +85,7 @@
     box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
   }
 
-  /* ---------- Section heading underline ---------- */
+  /* ---------- Section heading with neon underline ---------- */
   .section-title {
     @apply text-3xl md:text-4xl font-bold mb-2;
     position: relative;
@@ -122,6 +102,17 @@
     background: #39FF14;
     border-radius: 2px;
     box-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
+  }
+}
+
+@layer utilities {
+  /* ---------- Neon glow text ---------- */
+  .neon-text {
+    color: #39FF14;
+    text-shadow:
+      0 0 7px rgba(57, 255, 20, 0.8),
+      0 0 15px rgba(57, 255, 20, 0.5),
+      0 0 30px rgba(57, 255, 20, 0.3);
   }
 
   /* ---------- Dot-grid background ---------- */

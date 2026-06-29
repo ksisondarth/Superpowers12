@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { skillCategories } from '../data/portfolioData'
 
 export default function Skills() {
@@ -40,7 +41,7 @@ export default function Skills() {
   )
 }
 
-function GlowCard({ children, delay }: { children: React.ReactNode; delay: number }) {
+function GlowCard({ children, delay }: { children: ReactNode; delay: number }) {
   return (
     <div
       className="glow-card h-full"
