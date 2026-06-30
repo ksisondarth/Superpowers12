@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Mail, MapPin, Clock, Link, GitFork, Send, CheckCircle } from 'lucide-react'
+import { Mail, MapPin, Clock, Send, CheckCircle } from 'lucide-react'
+import { FaLinkedin, FaGithub } from 'react-icons/fa'
 import { personal } from '../data/portfolioData'
 
 export default function Contact() {
@@ -41,7 +42,7 @@ export default function Contact() {
 
   return (
     <div className="py-20 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-[15px]">
         <p className="font-mono text-sm text-teal-400 mb-3">06 / contact</p>
         <h2 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4">Let's Work Together</h2>
         <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-xl">
@@ -97,7 +98,7 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-teal-400/40 transition-all group"
                 >
-                  <Link size={18} className="text-gray-500 group-hover:text-teal-400" />
+                  <FaLinkedin size={18} className="text-[#0077b5] group-hover:text-teal-400" />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">LinkedIn</div>
                     <div className="text-xs text-gray-500">Keanu Niccolo Sison</div>
@@ -110,7 +111,7 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-teal-400/40 transition-all group"
                 >
-                  <GitFork size={18} className="text-gray-500 group-hover:text-teal-400" />
+                  <FaGithub size={18} className="text-gray-700 dark:text-gray-300 group-hover:text-teal-400" />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">GitHub</div>
                     <div className="text-xs text-gray-500">keansison</div>

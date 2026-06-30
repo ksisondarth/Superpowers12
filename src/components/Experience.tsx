@@ -26,7 +26,7 @@ const TYPE_COLORS: Record<string, string> = {
 export default function Experience() {
   return (
     <div className="py-20 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-[15px]">
         <p className="font-mono text-sm text-teal-400 mb-3">04 / experience</p>
         <h2 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4">Work History</h2>
         <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-xl">

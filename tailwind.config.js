@@ -8,6 +8,7 @@ export default {
         accent: '#2dd4bf',
       },
       fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
     },

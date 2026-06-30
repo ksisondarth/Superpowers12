@@ -15,9 +15,9 @@ export const personal = {
 export const summary = `Results-driven AppSheet Developer and Process Automation Specialist with extensive experience building custom no-code and low-code business systems for academic institutions, Google-partnered technology companies, and international clients. Deep expertise in AppSheet application development, SVG-driven UI/UX design, workflow automation via Make.com and N8N, and data visualization through Looker Studio. Proven track record of eliminating operational bottlenecks, reducing manual workloads, and delivering scalable, production-ready solutions across CRM, inventory management, project management, and document generation systems.`
 
 export const stats = [
-  { label: 'Years of Experience', value: '7+' },
-  { label: 'Systems Delivered', value: '15+' },
-  { label: 'Clients Served', value: '10+' },
+  { label: 'Years of Experience', value: '6+' },
+  { label: 'Systems Delivered', value: '20+' },
+  { label: 'Clients Served', value: '15+' },
   { label: 'Hiring Time Reduced', value: '35%' },
 ]
 

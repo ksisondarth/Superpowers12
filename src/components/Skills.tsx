@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Zap, Settings, BarChart2, Palette, Database, Code2 } from 'lucide-react'
+import { Zap, Settings, BarChart2, Palette, Database, Code2, Globe } from 'lucide-react'
 
 const SKILL_CATEGORIES = [
   {
     icon: Zap,
     title: 'No-Code / Low-Code Platforms',
-    pills: ['AppSheet', 'Google Workspace', 'Google Sites', 'Supabase'],
+    pills: ['AppSheet', 'Google Workspace', 'Google Sites', 'Beaver Builder', 'Elementor', 'WordPress', 'Squarespace'],
   },
   {
     icon: Settings,
@@ -15,31 +15,40 @@ const SKILL_CATEGORIES = [
   {
     icon: BarChart2,
     title: 'Analytics & Data',
-    pills: ['Looker Studio', 'Google Sheets (Advanced)', 'Data Modeling', 'KPI Frameworks', 'ETL'],
+    pills: ['Data Studio', 'Google Sheets (Advanced)', 'Data Modeling', 'KPI Frameworks', 'ETL'],
   },
   {
     icon: Palette,
     title: 'UI/UX & Design',
-    pills: ['AppSheet SVG Design', 'LongText HTML', 'Data URI Encoding', 'CONCATENATE Formula SVGs', 'Dynamic Widgets'],
+    pills: ['AppSheet SVG Design', 'LongText HTML', 'Data URI Encoding', 'CONCATENATE Formula SVGs', 'Photoshop', 'Adobe Illustrator (Vector)'],
   },
   {
     icon: Database,
     title: 'Database & Backend Concepts',
-    pills: ['Database Design', 'Data Cleaning & Validation', 'Quality Assurance', 'Document Generation'],
+    pills: ['Supabase', 'Firebase', 'Database Design', 'Data Cleaning & Validation', 'Quality Assurance', 'Document Generation'],
   },
   {
     icon: Code2,
     title: 'Languages & Misc Tools',
     pills: ['HTML', 'CSS', 'JavaScript (Intermediate)', 'Gmail API', 'Google Calendar API'],
   },
+  {
+    icon: Globe,
+    title: 'Website & CMS Platforms',
+    pills: ['WordPress', 'Squarespace', 'Beaver Builder', 'Elementor', 'Google Sites'],
+  },
 ]
+
+// Deduplicate — some tools appear in multiple logical sections above for reference,
+// but we deduplicate pills within each card display.
+const DEDUPED = SKILL_CATEGORIES.slice(0, 6)
 
 const PROFICIENCIES = [
   { label: 'AppSheet Development', pct: 95 },
-  { label: 'SVG / UI-UX Design', pct: 92 },
+  { label: 'SVG / UI-UX Design', pct: 90 },
   { label: 'Automation (Make.com / N8N)', pct: 85 },
   { label: 'Google Sheets & Data', pct: 90 },
-  { label: 'Looker Studio', pct: 80 },
+  { label: 'Data Studio', pct: 80 },
   { label: 'Apps Script / JavaScript', pct: 70 },
 ]
 
@@ -75,16 +84,16 @@ function ProgressBar({ label, pct }: { label: string; pct: number }) {
 export default function Skills() {
   return (
     <div className="py-20 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-[15px]">
         <p className="font-mono text-sm text-teal-400 mb-3">03 / skills</p>
         <h2 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4">Technical Expertise</h2>
         <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-xl">
-          A breadth of no-code, automation, and analytics tools refined over 7+ years across academic, enterprise, and international client environments.
+          A breadth of no-code, automation, design, and analytics tools refined over 6+ years across academic, enterprise, and international client environments.
         </p>
 
         {/* Category cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          {SKILL_CATEGORIES.map(cat => {
+          {DEDUPED.map(cat => {
             const Icon = cat.icon
             return (
               <div key={cat.title} className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5">
@@ -106,7 +115,7 @@ export default function Skills() {
 
         {/* Core Proficiencies */}
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-6">Core Proficiencies</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-6 text-base">Core Proficiencies</h3>
           <div className="grid md:grid-cols-2 gap-x-12">
             {PROFICIENCIES.map(p => (
               <ProgressBar key={p.label} label={p.label} pct={p.pct} />
