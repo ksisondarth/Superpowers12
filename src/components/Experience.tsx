@@ -1,64 +1,98 @@
-import { experience } from '../data/portfolioData'
-import { Briefcase } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
+import { experience, education } from '../data/portfolioData'
+
+const ROLE_TAGS: Record<string, string[]> = {
+  'Technology Solutions Consultant': ['AppSheet', 'Make.com', 'N8N', 'SVG UI', 'Google Workspace', 'Document Generation'],
+  'Database & Process Automation Specialist': ['AppSheet', 'Looker Studio', 'Google Apps Script', 'SVG UI', 'Data Analytics'],
+  'Tech Lead': ['AppSheet', 'Make.com', 'N8N', 'Looker Studio', 'AI Chatbot', 'Webhooks', 'CRM'],
+  'Website & AppSheet Developer': ['AppSheet', 'Google Sites', 'Make.com', 'CRM', 'Analytics'],
+  'HR Data Analytics Specialist': ['Google Sheets', 'Looker Studio', 'KPI Frameworks', 'Data Modeling'],
+}
+
+const ROLE_TYPE: Record<string, string> = {
+  'Technology Solutions Consultant': 'Consultant',
+  'Database & Process Automation Specialist': 'Full-time',
+  'Tech Lead': 'Contract',
+  'Website & AppSheet Developer': 'Consultant',
+  'HR Data Analytics Specialist': 'Full-time',
+}
+
+const TYPE_COLORS: Record<string, string> = {
+  'Full-time': 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800',
+  Contract: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+  Consultant: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800',
+}
 
 export default function Experience() {
   return (
-    <section id="experience" className="py-20 md:py-28">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="section-title text-gray-900 dark:text-white">Experience</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">Professional Journey</p>
-        </div>
+    <div className="py-20 border-t border-gray-200 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto px-6">
+        <p className="font-mono text-sm text-teal-400 mb-3">04 / experience</p>
+        <h2 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4">Work History</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-xl">
+          7+ years building no-code systems across academic, enterprise, and international client environments.
+        </p>
 
-        <div className="relative">
-          {/* Vertical timeline line */}
-          <div className="absolute left-4 md:left-8 top-0 bottom-0 w-px bg-gray-200 dark:bg-dark-border" />
-
-          <div className="space-y-8">
-            {experience.map((role, i) => (
-              <div key={i} className="relative pl-12 md:pl-20 group">
-                {/* Timeline dot */}
-                <div
-                  className="absolute left-2.5 md:left-6 top-5 w-3 h-3 rounded-full border-2 border-neon bg-white dark:bg-dark-bg
-                    group-hover:shadow-[0_0_10px_rgba(57,255,20,0.7)] transition-all duration-300"
-                  style={{ boxShadow: '0 0 0 3px rgba(57,255,20,0.15)' }}
-                />
-
-                <div
-                  className="p-5 md:p-6 rounded-xl border border-gray-200 dark:border-dark-border
-                    bg-white dark:bg-dark-card transition-all duration-300
-                    group-hover:border-neon/40 group-hover:shadow-[0_0_20px_rgba(57,255,20,0.08)]"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
-                    <div className="flex items-start gap-2">
-                      <Briefcase size={15} className="text-neon mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">
-                          {role.title}
-                        </h3>
-                        <p className="text-neon text-xs font-mono mt-0.5">{role.company}</p>
-                      </div>
+        {/* Experience list */}
+        <div className="space-y-5 mb-12">
+          {experience.map((job, i) => {
+            const type = ROLE_TYPE[job.title] || 'Full-time'
+            const tags = ROLE_TAGS[job.title] || []
+            return (
+              <div key={i} className="flex gap-6">
+                <div className="flex-shrink-0 w-8 mt-5">
+                  <span className="font-mono text-sm text-gray-400 dark:text-gray-600">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                </div>
+                <div className="flex-1 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5">
+                  <div className="flex items-start justify-between gap-4 mb-1">
+                    <div>
+                      <h3 className="font-bold text-gray-900 dark:text-white">{job.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">{job.company}</p>
                     </div>
-                    <span className="text-xs font-mono text-gray-400 dark:text-gray-500 whitespace-nowrap
-                      bg-gray-100 dark:bg-dark-bg px-2.5 py-1 rounded-full border border-gray-200 dark:border-dark-border self-start">
-                      {role.period}
-                    </span>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className={`text-xs px-2.5 py-1 rounded-md border font-medium ${TYPE_COLORS[type]}`}>
+                        {type}
+                      </span>
+                      <span className="font-mono text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{job.period}</span>
+                    </div>
                   </div>
-
-                  <ul className="space-y-1.5 mt-3">
-                    {role.highlights.map((point, j) => (
-                      <li key={j} className="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                        <span className="text-neon mt-1 flex-shrink-0">›</span>
-                        <span className="leading-relaxed">{point}</span>
+                  <ul className="mt-4 space-y-1.5">
+                    {job.highlights.slice(0, 4).map((h, j) => (
+                      <li key={j} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-teal-400 flex-shrink-0" />
+                        {h}
                       </li>
                     ))}
                   </ul>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-4">
+                      {tags.map(tag => (
+                        <span key={tag} className="font-mono text-xs px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-500">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
+            )
+          })}
+        </div>
+
+        {/* Education */}
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5 flex gap-4">
+          <div className="w-10 h-10 rounded-lg bg-teal-400/10 border border-teal-400/30 flex items-center justify-center flex-shrink-0">
+            <GraduationCap size={18} className="text-teal-400" />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 dark:text-white">{education.degree}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-500">{education.institution} · Graduated {education.year}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{education.note}</p>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }

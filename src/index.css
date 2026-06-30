@@ -1,132 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* @property must be top-level, outside any @layer */
-@property --angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes glow-border {
-  from { --angle: 0deg; }
-  to   { --angle: 360deg; }
-}
-
 @layer base {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  :root {
+    --accent: #2dd4bf;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
   }
 
   html {
     scroll-behavior: smooth;
   }
 
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    @apply bg-gray-50 text-gray-800;
-  }
-
-  .dark body {
-    @apply bg-[#0a0a0a] text-gray-200;
-  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2dd4bf44; border-radius: 3px; }
 }
 
 @layer components {
-  /* ---------- Glowing border card ---------- */
-  .glow-card {
-    position: relative;
-    border-radius: 12px;
-    padding: 1px;
-    background: conic-gradient(
-      from var(--angle),
-      transparent 0%,
-      #39FF14 10%,
-      transparent 20%,
-      transparent 100%
-    );
-    animation: glow-border 3s linear infinite;
+  .section-label {
+    @apply font-mono text-sm text-teal-400 mb-3;
   }
-
-  .glow-card-inner {
-    border-radius: 11px;
-    width: 100%;
-    height: 100%;
+  .section-heading {
+    @apply text-5xl font-extrabold tracking-tight;
   }
-
-  /* ---------- Neon button ---------- */
-  .btn-neon {
-    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200;
-    background: #39FF14;
-    color: #0a0a0a;
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+  .card {
+    @apply rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5;
   }
-
-  .btn-neon:hover {
-    box-shadow: 0 0 25px rgba(57, 255, 20, 0.7), 0 0 50px rgba(57, 255, 20, 0.3);
-    transform: translateY(-1px);
+  .pill {
+    @apply text-xs font-mono px-2.5 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 bg-transparent;
   }
-
-  .btn-outline-neon {
-    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200;
-    border: 1.5px solid #39FF14;
-    color: #39FF14;
-    background: transparent;
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-lg bg-teal-400 text-gray-900 font-semibold text-sm hover:bg-teal-300 transition-all duration-200 hover:scale-105;
   }
-
-  .btn-outline-neon:hover {
-    background: rgba(57, 255, 20, 0.08);
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+  .btn-outline {
+    @apply px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-teal-400 hover:text-teal-400 transition-all duration-200;
   }
-
-  /* ---------- Section heading with neon underline ---------- */
-  .section-title {
-    @apply text-3xl md:text-4xl font-bold mb-2;
-    position: relative;
-    display: inline-block;
-  }
-
-  .section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    width: 48px;
-    height: 3px;
-    background: #39FF14;
-    border-radius: 2px;
-    box-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
-  }
-}
-
-@layer utilities {
-  /* ---------- Neon glow text ---------- */
-  .neon-text {
-    color: #39FF14;
-    text-shadow:
-      0 0 7px rgba(57, 255, 20, 0.8),
-      0 0 15px rgba(57, 255, 20, 0.5),
-      0 0 30px rgba(57, 255, 20, 0.3);
-  }
-
-  /* ---------- Dot-grid background ---------- */
-  .dot-grid {
-    background-image: radial-gradient(circle, rgba(57,255,20,0.08) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
-
-  /* ---------- Scrollbar ---------- */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(57, 255, 20, 0.4);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(57, 255, 20, 0.7); }
 }
