@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Black arc — left vertical stem of K -->
+  <path d="M 72 38 A 52 62 0 0 0 72 162" stroke="#111111" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Purple ring at top of black arc -->
+  <circle cx="72" cy="38" r="14" stroke="#5e17eb" stroke-width="10" fill="white"/>
+
+  <!-- Teal upper arm — sweeps from top-right down to center junction -->
+  <path d="M 168 28 C 130 40 100 60 94 100" stroke="#2dd4bf" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Teal ring at center junction -->
+  <circle cx="94" cy="100" r="12" stroke="#2dd4bf" stroke-width="9" fill="white"/>
+
+  <!-- Purple lower arm — sweeps from center junction to bottom-right -->
+  <path d="M 94 100 C 110 128 140 152 168 172" stroke="#5e17eb" stroke-width="22" stroke-linecap="round"/>
+</svg>
