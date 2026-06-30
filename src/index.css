@@ -1,247 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Must live at top-level — not inside @layer */
-@property --angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes border-spin {
-  from { --angle: 0deg; }
-  to   { --angle: 360deg; }
-}
-
-/* ─── Base ──────────────────────────────────────────────────── */
 @layer base {
-  *, *::before, *::after { box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
+  :root {
+    --accent: #2dd4bf;
+    scroll-behavior: smooth;
+  }
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    transition: background-color 0.25s ease, color 0.25s ease;
-    /* Light mode defaults */
-    background-color: #FFFFFF;
-    color: #0F172A;
+    font-family: 'Inter', sans-serif;
   }
 
-  /* Dark mode overrides via .dark on <html> */
-  .dark body {
-    background-color: #030712;
-    color: #F9FAFB;
-  }
-}
-
-/* ─── Components ────────────────────────────────────────────── */
-@layer components {
-
-  /* ── Skill card animated border (1-2px, conic sweep) ── */
-  .skill-card-wrapper {
-    position: relative;
-    border-radius: 14px;
-    padding: 1.5px;
-    /* light: subtle green sweep */
-    background: conic-gradient(
-      from var(--angle),
-      transparent 0deg,
-      #16A34A 60deg,
-      transparent 120deg
-    );
-    animation: border-spin 4s linear infinite;
+  html {
+    scroll-behavior: smooth;
   }
 
-  .dark .skill-card-wrapper {
-    /* dark: neon lime sweep */
-    background: conic-gradient(
-      from var(--angle),
-      transparent 0deg,
-      #39FF14 60deg,
-      transparent 120deg
-    );
-  }
-
-  .skill-card-inner {
-    border-radius: 13px;
-    width: 100%;
-    height: 100%;
-    /* inner fill blocks the conic so only the 1.5px edge shows */
-    background: #FFFFFF;
-  }
-
-  .dark .skill-card-inner {
-    background: #111827;
-  }
-
-  /* ── Buttons ── */
-  .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-lg
-           text-sm font-semibold tracking-wide transition-all duration-200;
-    background-color: #0F172A;
-    color: #FFFFFF;
-  }
-  .btn-primary:hover {
-    background-color: #1E293B;
-    box-shadow: 0 4px 14px rgba(15,23,42,0.2);
-    transform: translateY(-1px);
-  }
-  .dark .btn-primary {
-    background-color: #F9FAFB;
-    color: #030712;
-  }
-  .dark .btn-primary:hover {
-    background-color: #E5E7EB;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-lg
-           text-sm font-semibold tracking-wide transition-all duration-200;
-    border: 1.5px solid #CBD5E1;
-    color: #0F172A;
-    background: transparent;
-  }
-  .btn-outline:hover {
-    border-color: #16A34A;
-    color: #16A34A;
-    background: rgba(22,163,74,0.05);
-  }
-  .dark .btn-outline {
-    border-color: #374151;
-    color: #F9FAFB;
-  }
-  .dark .btn-outline:hover {
-    border-color: #39FF14;
-    color: #39FF14;
-    background: rgba(57,255,20,0.05);
-  }
-
-  /* ── Section title with accent underline ── */
-  .section-label {
-    @apply text-xs font-mono font-medium tracking-widest uppercase;
-    color: #16A34A;
-  }
-  .dark .section-label {
-    color: #39FF14;
-  }
-
-  .section-heading {
-    @apply text-3xl md:text-4xl font-bold tracking-tight mt-2;
-    color: #0F172A;
-  }
-  .dark .section-heading {
-    color: #F9FAFB;
-  }
-
-  /* ── Card base ── */
-  .card {
-    @apply rounded-2xl border transition-all duration-200;
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .card:hover {
-    border-color: #BBF7D0;
-    box-shadow: 0 4px 20px rgba(22,163,74,0.08);
-  }
-  .dark .card {
-    background: #111827;
-    border-color: #1F2937;
-    box-shadow: none;
-  }
-  .dark .card:hover {
-    border-color: rgba(57,255,20,0.25);
-    box-shadow: 0 4px 20px rgba(57,255,20,0.05);
-  }
-
-  /* ── Badge / tag ── */
-  .tag {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full
-           text-2xs font-mono font-medium transition-colors duration-150;
-    background: #F1F5F9;
-    color: #475569;
-    border: 1px solid #E2E8F0;
-  }
-  .tag:hover {
-    background: #DCFCE7;
-    color: #16A34A;
-    border-color: #BBF7D0;
-  }
-  .dark .tag {
-    background: #1F2937;
-    color: #9CA3AF;
-    border-color: #374151;
-  }
-  .dark .tag:hover {
-    background: rgba(57,255,20,0.08);
-    color: #39FF14;
-    border-color: rgba(57,255,20,0.3);
-  }
-
-  /* ── Input fields ── */
-  .field {
-    @apply w-full px-3.5 py-2.5 rounded-lg text-sm border transition-all duration-200 outline-none;
-    background: #F8FAFC;
-    border-color: #E2E8F0;
-    color: #0F172A;
-  }
-  .field::placeholder { color: #94A3B8; }
-  .field:focus {
-    border-color: #16A34A;
-    box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
-  }
-  .dark .field {
-    background: #0D1117;
-    border-color: #1F2937;
-    color: #F9FAFB;
-  }
-  .dark .field::placeholder { color: #6B7280; }
-  .dark .field:focus {
-    border-color: #39FF14;
-    box-shadow: 0 0 0 3px rgba(57,255,20,0.08);
-  }
-}
-
-/* ─── Utilities ─────────────────────────────────────────────── */
-@layer utilities {
-  /* Subtle dot-grid for hero — barely visible */
-  .dot-grid {
-    background-image: radial-gradient(circle, rgba(15,23,42,0.055) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-  .dark .dot-grid {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
-  }
-
-  /* Accent text color */
-  .text-accent {
-    color: #16A34A;
-  }
-  .dark .text-accent {
-    color: #39FF14;
-  }
-
-  /* Thin accent divider */
-  .accent-rule {
-    display: block;
-    width: 36px;
-    height: 2px;
-    border-radius: 2px;
-    background: #16A34A;
-    margin-top: 12px;
-  }
-  .dark .accent-rule { background: #39FF14; }
-
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: 3px;
+  ::-webkit-scrollbar-thumb { background: #2dd4bf44; border-radius: 3px; }
+}
+
+@layer components {
+  .section-label {
+    @apply font-mono text-sm text-teal-400 mb-3;
   }
-  .dark ::-webkit-scrollbar-thumb { background: #374151; }
-  ::-webkit-scrollbar-thumb:hover { background: #16A34A; }
-  .dark ::-webkit-scrollbar-thumb:hover { background: #39FF14; }
+  .section-heading {
+    @apply text-5xl font-extrabold tracking-tight;
+  }
+  .card {
+    @apply rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5;
+  }
+  .pill {
+    @apply text-xs font-mono px-2.5 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 bg-transparent;
+  }
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-lg bg-teal-400 text-gray-900 font-semibold text-sm hover:bg-teal-300 transition-all duration-200 hover:scale-105;
+  }
+  .btn-outline {
+    @apply px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-teal-400 hover:text-teal-400 transition-all duration-200;
+  }
 }
