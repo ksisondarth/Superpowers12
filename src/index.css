@@ -4,25 +4,34 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light mode accent = #037BE4 (blue) */
   :root {
-    --accent: #2dd4bf;
-    scroll-behavior: smooth;
+    --accent: #037BE4;
+    --accent-hover: #0266c0;
+    --accent-bg: rgba(3, 123, 228, 0.08);
+    --accent-border: rgba(3, 123, 228, 0.35);
   }
+
+  /* Dark mode accent = #2dd4bf (teal) */
+  .dark {
+    --accent: #2dd4bf;
+    --accent-hover: #25b8a8;
+    --accent-bg: rgba(45, 212, 191, 0.08);
+    --accent-border: rgba(45, 212, 191, 0.35);
+  }
+
+  html { scroll-behavior: smooth; }
 
   body {
     font-family: 'Poppins', sans-serif;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2dd4bf44; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--accent-border); border-radius: 3px; }
 }
 
-/* Marquee animation */
+/* Marquee */
 @keyframes marquee {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -30,29 +39,28 @@
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 30s linear infinite;
+  animation: marquee 32s linear infinite;
 }
-.marquee-track:hover {
-  animation-play-state: paused;
+.marquee-track:hover { animation-play-state: paused; }
+
+/* Accent utility classes using CSS vars */
+@layer utilities {
+  .text-accent       { color: var(--accent); }
+  .bg-accent         { background-color: var(--accent); }
+  .border-accent     { border-color: var(--accent); }
+  .bg-accent-subtle  { background-color: var(--accent-bg); }
+  .border-accent-subtle { border-color: var(--accent-border); }
+  .hover\:text-accent:hover   { color: var(--accent); }
+  .hover\:border-accent:hover { border-color: var(--accent); }
+  .hover\:bg-accent:hover     { background-color: var(--accent); }
 }
 
 @layer components {
-  .section-label {
-    @apply font-mono text-sm text-teal-400 mb-3;
-  }
-  .section-heading {
-    @apply text-5xl font-extrabold tracking-tight;
-  }
-  .card {
-    @apply rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5;
-  }
-  .pill {
-    @apply text-xs font-mono px-2.5 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 bg-transparent;
-  }
-  .btn-primary {
-    @apply px-5 py-2.5 rounded-lg bg-teal-400 text-gray-900 font-semibold text-sm hover:bg-teal-300 transition-all duration-200 hover:scale-105;
-  }
-  .btn-outline {
-    @apply px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-teal-400 hover:text-teal-400 transition-all duration-200;
-  }
+  .section-label  { @apply font-mono text-sm mb-3; color: var(--accent); }
+  .card           { @apply rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5; }
+  .pill           { @apply text-xs font-mono px-2.5 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400; }
+  .btn-primary    { @apply px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-105 text-white dark:text-gray-900; background-color: var(--accent); }
+  .btn-primary:hover { background-color: var(--accent-hover); }
+  .btn-outline    { @apply px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm transition-all duration-200; }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 }
