@@ -1,113 +1,101 @@
-import { useState, useEffect } from 'react'
-import { Menu, X, Download } from 'lucide-react'
-import ThemeToggle from './ThemeToggle'
+import { useState } from 'react'
+import { Sun, Moon, Download, Menu, X } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext'
 import { personal } from '../data/portfolioData'
 
-const navLinks = [
-  { label: 'About',      href: '#about' },
-  { label: 'Skills',     href: '#skills' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Portfolio',  href: '#portfolio' },
-  { label: 'Contact',    href: '#contact' },
-  { label: 'Community',  href: '#community' },
+const NAV_LINKS = [
+  { label: 'Home', href: '#home', id: 'home' },
+  { label: 'Projects', href: '#projects', id: 'projects' },
+  { label: 'Skills', href: '#skills', id: 'skills' },
+  { label: 'Experience', href: '#experience', id: 'experience' },
+  { label: 'Certifications', href: '#certifications', id: 'certifications' },
+  { label: 'Contact', href: '#contact', id: 'contact' },
 ]
 
-export default function Navbar() {
-  const [scrolled, setScrolled]     = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+export default function Navbar({ activeSection }: { activeSection: string }) {
+  const { theme, toggleTheme } = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const scrollTo = (href: string) => {
+    const id = href.replace('#', '')
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setMenuOpen(false)
+  }
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 dark:bg-dark-bg/95 backdrop-blur-sm border-b border-light-border dark:border-dark-border shadow-[0_1px_0_0_rgba(0,0,0,0.06)]'
-          : 'bg-transparent'
-      }`}
-    >
-      <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0a0e14]/90 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <button onClick={() => scrollTo('#home')} className="text-xl font-bold text-gray-900 dark:text-white">
+          KeanSison<span className="text-sm font-normal text-teal-400">.com</span>
+        </button>
 
-        {/* Logo */}
-        <a href="#hero" className="text-base font-bold tracking-tight text-light-text dark:text-dark-text
-          hover:text-accent-light dark:hover:text-accent transition-colors">
-          Keanu<span className="text-accent-light dark:text-accent">.</span>
-        </a>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-7">
-          {navLinks.map(link => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-light-sub dark:text-dark-sub
-                hover:text-light-text dark:hover:text-dark-text transition-colors
-                relative group"
+        <nav className="hidden md:flex items-center gap-6">
+          {NAV_LINKS.map(link => (
+            <button
+              key={link.id}
+              onClick={() => scrollTo(link.href)}
+              className={`text-sm font-medium transition-colors relative pb-1 ${
+                activeSection === link.id
+                  ? 'text-gray-900 dark:text-white font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-teal-400 after:rounded'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
             >
               {link.label}
-              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent-light dark:bg-accent
-                group-hover:w-full transition-all duration-250" />
-            </a>
+            </button>
           ))}
-        </div>
+        </nav>
 
-        {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href={personal.cvPdf}
-            download="Keanu_Niccolo_Sison_CV.pdf"
-            className="btn-outline text-xs px-4 py-2"
-          >
-            <Download size={13} strokeWidth={2} />
-            Download CV
-          </a>
-          <ThemeToggle />
-        </div>
-
-        {/* Mobile actions */}
-        <div className="flex md:hidden items-center gap-2.5">
-          <a
-            href={personal.cvPdf}
-            download="Keanu_Niccolo_Sison_CV.pdf"
-            className="btn-outline text-xs px-3 py-2"
-          >
-            <Download size={13} strokeWidth={2} />
-            CV
-          </a>
-          <ThemeToggle />
           <button
-            onClick={() => setMobileOpen(p => !p)}
-            aria-label="Toggle navigation"
-            className="w-9 h-9 flex items-center justify-center rounded-lg
-              border border-light-border dark:border-dark-border
-              text-light-sub dark:text-dark-sub
-              hover:text-light-text dark:hover:text-dark-text transition-colors"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-teal-400 hover:text-teal-400 transition-all"
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <a
+            href={personal.cvPdf}
+            download
+            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-teal-400 hover:text-teal-400 transition-all"
+          >
+            <Download size={16} />
+          </a>
+          <button
+            onClick={() => scrollTo('#contact')}
+            className="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 transition-all"
+          >
+            Hire Me
           </button>
         </div>
-      </nav>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-light-border dark:border-dark-border
-          bg-white dark:bg-dark-surface px-5 py-3 flex flex-col">
-          {navLinks.map(link => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="py-3 text-sm font-medium text-light-sub dark:text-dark-sub
-                hover:text-accent-light dark:hover:text-accent transition-colors
-                border-b border-light-border dark:border-dark-border last:border-0"
+        <button className="md:hidden p-2 text-gray-600 dark:text-gray-400" onClick={() => setMenuOpen(v => !v)}>
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0e14] px-6 py-4 flex flex-col gap-3">
+          {NAV_LINKS.map(link => (
+            <button
+              key={link.id}
+              onClick={() => scrollTo(link.href)}
+              className={`text-sm font-medium text-left py-1 ${
+                activeSection === link.id ? 'text-teal-400' : 'text-gray-600 dark:text-gray-400'
+              }`}
             >
               {link.label}
-            </a>
+            </button>
           ))}
+          <div className="flex items-center gap-3 pt-2 border-t border-gray-200 dark:border-gray-800">
+            <button onClick={toggleTheme} className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <a href={personal.cvPdf} download className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+              <Download size={16} />
+            </a>
+            <button onClick={() => scrollTo('#contact')} className="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold">
+              Hire Me
+            </button>
+          </div>
         </div>
       )}
     </header>
