@@ -5,9 +5,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        accent: '#2dd4bf',
+        accent: 'var(--accent)',
       },
       fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
     },

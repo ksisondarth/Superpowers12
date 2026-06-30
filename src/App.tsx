@@ -5,19 +5,19 @@ import Hero from './components/Hero'
 import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Experience from './components/Experience'
-import Certifications from './components/Certifications'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+
+const NAV_SECTIONS = ['home', 'projects', 'skills', 'experience', 'contact']
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('home')
 
   useEffect(() => {
-    const sections = ['home', 'projects', 'skills', 'experience', 'certifications', 'contact']
     const observers: IntersectionObserver[] = []
 
-    sections.forEach(id => {
+    NAV_SECTIONS.forEach(id => {
       const el = document.getElementById(id)
       if (!el) return
       const obs = new IntersectionObserver(
@@ -40,7 +40,7 @@ export default function App() {
           <section id="projects"><Projects /></section>
           <section id="skills"><Skills /></section>
           <section id="experience"><Experience /></section>
-          <section id="certifications"><Certifications /></section>
+          {/* Certifications hidden — to be added after cert data is provided */}
           <section id="contact"><Contact /></section>
         </main>
         <Footer />
