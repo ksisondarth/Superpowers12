@@ -20,7 +20,7 @@ const INDUSTRIES = [
 const MARQUEE_ITEMS = [...INDUSTRIES, ...INDUSTRIES]
 
 // Photo served from public/images/ — add keanu-photo.jpg there via GitHub
-const PHOTO_SRC = `${import.meta.env.BASE_URL}images/keanu-photo.jpg`
+const PHOTO_SRC = `${import.meta.env.BASE_URL}images/Keanu-Photo.jpg`
 
 export default function Hero() {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
