@@ -48,6 +48,7 @@ function PortfolioApp() {
         activeSection={activeSection}
         navSections={data.navSections}
         cvPdf={data.siteSettings.cvPdf}
+        logo={data.siteSettings.logo}
       />
       <main>
         <section id="home">

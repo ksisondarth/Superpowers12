@@ -3,15 +3,17 @@ import { Sun, Moon, Download, Menu, X } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import type { NavSection } from '../types/portfolio'
 
-const LOGO_SRC = `${import.meta.env.BASE_URL}logo.svg`
+const FALLBACK_LOGO = `${import.meta.env.BASE_URL}logo.svg`
 
 interface Props {
   activeSection: string
   navSections: NavSection[]
   cvPdf: string
+  logo?: string
 }
 
-export default function Navbar({ activeSection, navSections, cvPdf }: Props) {
+export default function Navbar({ activeSection, navSections, cvPdf, logo }: Props) {
+  const logoSrc = logo || FALLBACK_LOGO
   const { theme, toggleTheme } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -25,7 +27,7 @@ export default function Navbar({ activeSection, navSections, cvPdf }: Props) {
       <div className="max-w-7xl mx-auto px-[15px] h-16 flex items-center justify-between">
 
         <button onClick={() => scrollTo('home')} className="flex items-center gap-2.5 group">
-          <img src={LOGO_SRC} alt="Kytus Development logo" className="w-8 h-8 object-contain" />
+          <img src={logoSrc} alt="Kytus Development logo" className="w-8 h-8 object-contain" onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_LOGO }} />
           <span className="text-base font-bold text-gray-900 dark:text-white leading-tight">
             Kytus<span style={{ color: 'var(--accent)' }}> Development</span>
           </span>
