@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Download, MapPin, Briefcase } from 'lucide-react'
 import { FaLinkedin } from 'react-icons/fa'
 import type { SiteSettings, Stat } from '../types/portfolio'
@@ -26,6 +27,8 @@ interface Props {
 
 export default function Hero({ siteSettings, stats }: Props) {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  const [photoError, setPhotoError] = useState(false)
+  useEffect(() => { setPhotoError(false) }, [siteSettings.profilePhoto])
 
   return (
     <div className="pt-24 pb-0">
@@ -93,12 +96,14 @@ export default function Hero({ siteSettings, stats }: Props) {
           {/* RIGHT */}
           <div className="flex flex-col items-center lg:items-end gap-4">
             <div className="relative w-72 h-80 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900">
-              <img
-                src={siteSettings.profilePhoto}
-                alt={siteSettings.name}
-                className="w-full h-full object-cover object-top"
-                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-              />
+              {!photoError && (
+                <img
+                  src={siteSettings.profilePhoto}
+                  alt={siteSettings.name}
+                  className="w-full h-full object-cover object-top"
+                  onError={() => setPhotoError(true)}
+                />
+              )}
               <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs text-gray-700 dark:text-gray-300">
                 <MapPin size={12} style={{ color: 'var(--accent)' }} />
                 {siteSettings.location}
