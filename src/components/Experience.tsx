@@ -1,5 +1,5 @@
 import { GraduationCap } from 'lucide-react'
-import { experience, education } from '../data/portfolioData'
+import type { ExperienceItem, Education } from '../types/portfolio'
 
 const ROLE_TAGS: Record<string, string[]> = {
   'Technology Solutions Consultant': ['AppSheet', 'Make.com', 'N8N', 'SVG UI', 'Google Workspace', 'Document Generation'],
@@ -23,7 +23,12 @@ const TYPE_COLORS: Record<string, string> = {
   Consultant:  'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
 }
 
-export default function Experience() {
+interface Props {
+  experience: ExperienceItem[]
+  education: Education
+}
+
+export default function Experience({ experience, education }: Props) {
   return (
     <div className="py-20 border-t border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-[15px]">
@@ -35,8 +40,8 @@ export default function Experience() {
 
         <div className="space-y-5 mb-12">
           {experience.map((job, i) => {
-            const type = ROLE_TYPE[job.title] || 'Full-time'
-            const tags = ROLE_TAGS[job.title] || []
+            const type = ROLE_TYPE[job.title] ?? 'Full-time'
+            const tags = ROLE_TAGS[job.title] ?? []
             return (
               <div key={i} className="flex gap-6">
                 <div className="flex-shrink-0 w-8 mt-5">

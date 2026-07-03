@@ -1,12 +1,26 @@
 import { useState, type FormEvent } from 'react'
-import { Mail, MapPin, Clock, Send, CheckCircle } from 'lucide-react'
+import { Mail, MapPin, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react'
 import { FaLinkedin, FaGithub } from 'react-icons/fa'
-import { personal } from '../data/portfolioData'
+import type { SiteSettings, SocialLink } from '../types/portfolio'
 
-export default function Contact() {
+const API_URL = import.meta.env.VITE_PORTFOLIO_API_URL as string | undefined
+
+interface Props {
+  siteSettings: SiteSettings
+  socialLinks: SocialLink[]
+}
+
+const SOCIAL_ICONS: Record<string, React.ReactNode> = {
+  LinkedIn: <FaLinkedin size={18} className="text-[#0077b5]" />,
+  GitHub:   <FaGithub size={18} className="text-gray-700 dark:text-gray-300" />,
+}
+
+export default function Contact({ siteSettings, socialLinks }: Props) {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [sending, setSending] = useState(false)
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -17,15 +31,42 @@ export default function Contact() {
     return e
   }
 
-  const handleSubmit = (ev: FormEvent) => {
+  const handleSubmit = async (ev: FormEvent) => {
     ev.preventDefault()
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
-    // TODO: plug in EmailJS or backend endpoint here
-    console.log('Contact form submitted:', form)
-    setSubmitted(true)
-    setForm({ name: '', email: '', subject: '', message: '' })
-    setErrors({})
+
+    setSending(true)
+    setSubmitError('')
+
+    try {
+      if (!API_URL) throw new Error('No API configured')
+
+      // Deliberately no Content-Type header — Apps Script CORS doesn't handle JSON preflight
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'submitContact',
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+        }),
+      })
+
+      const result = await res.json() as { success: boolean; error?: string }
+      if (!result.success) throw new Error(result.error ?? 'Submission failed')
+
+      setSubmitted(true)
+      setForm({ name: '', email: '', subject: '', message: '' })
+      setErrors({})
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong'
+      console.error('[Contact] submit failed:', msg)
+      setSubmitError('Failed to send message. Please try emailing me directly.')
+    } finally {
+      setSending(false)
+    }
   }
 
   const set = (field: string) => (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,9 +76,7 @@ export default function Contact() {
 
   const inputCls = (field: string) =>
     `w-full px-4 py-3 rounded-lg border text-sm bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 outline-none transition-colors ${
-      errors[field]
-        ? 'border-red-400 focus:border-red-400'
-        : 'border-gray-200 dark:border-gray-700'
+      errors[field] ? 'border-red-400 focus:border-red-400' : 'border-gray-200 dark:border-gray-700'
     }`
 
   return (
@@ -64,9 +103,9 @@ export default function Contact() {
 
             <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5 space-y-4">
               {[
-                { icon: Mail, label: 'Email', value: personal.email, href: `mailto:${personal.email}` },
-                { icon: MapPin, label: 'Location', value: personal.location },
-                { icon: Clock, label: 'Timezone', value: 'PHT, UTC+8' },
+                { icon: Mail,   label: 'Email',    value: siteSettings.email,    href: `mailto:${siteSettings.email}` },
+                { icon: MapPin, label: 'Location', value: siteSettings.location, href: undefined },
+                { icon: Clock,  label: 'Timezone', value: 'PHT, UTC+8',          href: undefined },
               ].map(({ icon: Icon, label, value, href }) => (
                 <div key={label} className="flex items-center gap-3 text-sm">
                   <Icon size={16} style={{ color: 'var(--accent)' }} className="flex-shrink-0" />
@@ -84,24 +123,21 @@ export default function Contact() {
             <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0d1117] p-5">
               <p className="font-mono text-xs text-gray-500 dark:text-gray-500 mb-4 tracking-widest">CONNECT</p>
               <div className="space-y-2">
-                <a href="https://www.linkedin.com/in/keanu-sison" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-all group">
-                  <FaLinkedin size={18} className="text-[#0077b5]" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">LinkedIn</div>
-                    <div className="text-xs text-gray-500">Keanu Niccolo Sison</div>
-                  </div>
-                  <span className="text-gray-400 text-xs">↗</span>
-                </a>
-                <a href="https://github.com/keansison" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-all group">
-                  <FaGithub size={18} className="text-gray-700 dark:text-gray-300" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">GitHub</div>
-                    <div className="text-xs text-gray-500">keansison</div>
-                  </div>
-                  <span className="text-gray-400 text-xs">↗</span>
-                </a>
+                {socialLinks.map(link => (
+                  <a
+                    key={link.platform}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-all"
+                  >
+                    {SOCIAL_ICONS[link.platform] ?? null}
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{link.platform}</div>
+                    </div>
+                    <span className="text-gray-400 text-xs">↗</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -113,7 +149,7 @@ export default function Contact() {
                 <CheckCircle size={48} className="mb-4" style={{ color: 'var(--accent)' }} />
                 <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2">Message sent!</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">Thanks for reaching out. I'll get back to you soon.</p>
-                <button onClick={() => setSubmitted(false)} className="mt-6 text-sm text-accent hover:opacity-80 transition-opacity">
+                <button onClick={() => setSubmitted(false)} className="mt-6 text-sm hover:opacity-80 transition-opacity" style={{ color: 'var(--accent)' }}>
                   Send another message
                 </button>
               </div>
@@ -146,9 +182,22 @@ export default function Contact() {
                   <textarea rows={5} placeholder="Tell me about your project..." value={form.message} onChange={set('message')} className={`${inputCls('message')} resize-none`} />
                   {errors.message && <p className="text-xs text-red-400 mt-1">{errors.message}</p>}
                 </div>
-                <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white dark:text-gray-900 font-semibold text-sm hover:opacity-90 transition-all"
-                  style={{ backgroundColor: 'var(--accent)' }}>
-                  <Send size={15} /> Send Message
+
+                {submitError && (
+                  <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                    <AlertCircle size={14} />
+                    {submitError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white dark:text-gray-900 font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                >
+                  <Send size={15} />
+                  {sending ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
             )}
