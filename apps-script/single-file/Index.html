@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+<style>
+  :root {
+    --accent: #5e17eb;
+    --accent-contrast: #ffffff;
+    --bg: #f5f5f8;
+    --surface: #ffffff;
+    --surface-2: #f0f0f5;
+    --text: #1c1c24;
+    --text-muted: #6b6b7b;
+    --border: #e3e3ec;
+    --danger: #e5484d;
+    --success: #2fb872;
+    --radius: 12px;
+    --shadow: 0 2px 10px rgba(20, 20, 40, 0.06);
+    --transition: 180ms cubic-bezier(.4,0,.2,1);
+  }
+
+  [data-theme="dark"] {
+    --accent: #5af2a3;
+    --accent-contrast: #08120d;
+    --bg: #101114;
+    --surface: #17181c;
+    --surface-2: #1e2024;
+    --text: #eef0f2;
+    --text-muted: #9a9ca3;
+    --border: #2a2c31;
+    --shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background var(--transition), color var(--transition);
+  }
+
+  button, input, select { font-family: inherit; }
+
+  #app { display: flex; min-height: 100vh; }
+
+  /* ---- Sidebar ---- */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    gap: 24px;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; padding: 0 6px; }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .nav-btn {
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+  }
+  .nav-btn:hover { background: var(--surface-2); color: var(--text); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 600; }
+  .theme-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); padding: 0 6px; }
+
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 20px; transition: background var(--transition); }
+  .slider::before { content: ""; position: absolute; height: 14px; width: 14px; left: 2px; top: 2px; background: white; border-radius: 50%; transition: transform var(--transition); }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(16px); }
+
+  /* ---- Content / views ---- */
+  .content { flex: 1; padding: 24px 28px; overflow-x: hidden; }
+  .view { display: none; animation: fadeIn 220ms ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1.view-title { font-size: 20px; margin: 0 0 16px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  }
+
+  /* ---- Order view ---- */
+  .order-layout { display: flex; gap: 20px; align-items: flex-start; }
+  .menu-panel { flex: 1; min-width: 0; }
+  .order-panel { width: 340px; flex-shrink: 0; position: sticky; top: 24px; }
+
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-input {
+    flex: 1; min-width: 180px; padding: 10px 14px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    transition: border-color var(--transition);
+  }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); cursor: pointer; font-size: 13px;
+    transition: all var(--transition);
+  }
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); font-weight: 600; }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .menu-card {
+    padding: 10px; display: flex; flex-direction: column; gap: 6px; cursor: default;
+  }
+  .menu-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(20,20,40,0.1); }
+  .menu-card.unavailable { opacity: 0.5; }
+  .menu-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; background: var(--surface-2); }
+  .menu-card .name { font-weight: 600; font-size: 14px; }
+  .menu-card .price { color: var(--accent); font-weight: 700; font-size: 14px; }
+  .menu-card .stock { font-size: 11px; color: var(--text-muted); }
+  .menu-card .not-available-badge { font-size: 11px; color: var(--danger); font-weight: 600; }
+
+  .stepper { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; }
+  .stepper button {
+    width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); cursor: pointer; font-size: 15px; line-height: 1;
+    transition: background var(--transition), transform 100ms ease;
+  }
+  .stepper button:active { transform: scale(0.92); }
+  .stepper button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .stepper .qty { min-width: 20px; text-align: center; font-weight: 600; }
+
+  .order-summary { padding: 18px; }
+  .order-id { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .order-lines { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; margin-bottom: 12px; }
+  .order-line {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 8px 10px; background: var(--surface-2); border-radius: 8px; font-size: 13px;
+    animation: slideIn 200ms ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+  .order-line .remove-btn { border: none; background: none; color: var(--danger); cursor: pointer; font-size: 16px; }
+  .empty-order { color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0; }
+
+  .totals-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: var(--text-muted); }
+  .totals-row.total { font-size: 16px; font-weight: 700; color: var(--text); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; }
+
+  .staff-select {
+    width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); margin-bottom: 10px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 16px; border-radius: var(--radius); border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: transform var(--transition), opacity var(--transition), background var(--transition);
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: var(--accent-contrast); width: 100%; }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* ---- Tables (Sales view) ---- */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  table.data-table tr:hover td { background: var(--surface-2); cursor: pointer; }
+
+  /* ---- Dashboard ---- */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-card { padding: 16px; animation: fadeIn 260ms ease; }
+  .stat-card .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; }
+  .stat-card .value.accent { color: var(--accent); }
+
+  .chart-card { padding: 18px; margin-bottom: 20px; }
+  .chart-card h3 { margin: 0 0 14px; font-size: 15px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; }
+  .bar-chart .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+  .bar-chart .bar { width: 60%; background: var(--accent); border-radius: 6px 6px 0 0; transition: height 400ms cubic-bezier(.4,0,.2,1); }
+  .bar-chart .bar-label { font-size: 11px; color: var(--text-muted); text-align: center; }
+
+  .top-items-list { display: flex; flex-direction: column; gap: 10px; }
+  .top-item-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .top-item-row .name { width: 130px; flex-shrink: 0; }
+  .top-item-row .bar-track { flex: 1; background: var(--surface-2); border-radius: 6px; height: 10px; overflow: hidden; }
+  .top-item-row .bar-fill { height: 100%; background: var(--accent); border-radius: 6px; transition: width 500ms cubic-bezier(.4,0,.2,1); }
+  .top-item-row .qty { width: 30px; text-align: right; color: var(--text-muted); }
+
+  /* ---- Menu management ---- */
+  .menu-manage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+  .manage-card { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .manage-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; background: var(--surface-2); }
+  .manage-card .actions { display: flex; gap: 6px; margin-top: 4px; }
+  .manage-card .actions .btn { flex: 1; padding: 7px; font-size: 12px; }
+
+  /* ---- Modal ---- */
+  .modal-root:empty { display: none; }
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex;
+    align-items: center; justify-content: center; z-index: 50; animation: fadeIn 150ms ease;
+  }
+  .modal {
+    background: var(--surface); border-radius: var(--radius); padding: 22px; width: 420px;
+    max-width: 92vw; max-height: 86vh; overflow-y: auto; box-shadow: var(--shadow);
+    animation: modalIn 180ms cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal h2 { margin: 0 0 14px; font-size: 17px; }
+  .form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .form-row label { font-size: 12px; color: var(--text-muted); }
+  .form-row input, .form-row select {
+    padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+  }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* ---- Toast ---- */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: var(--text); color: var(--bg);
+    padding: 12px 18px; border-radius: var(--radius); font-size: 13px; opacity: 0;
+    transform: translateY(10px); pointer-events: none; transition: opacity var(--transition), transform var(--transition);
+    z-index: 100; max-width: 320px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: var(--danger); color: white; }
+
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.15); display: flex; align-items: center;
+    justify-content: center; z-index: 200; transition: opacity var(--transition);
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner { width: 36px; height: 36px; border-radius: 50%; border: 4px solid var(--surface-2); border-top-color: var(--accent); animation: spin 700ms linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 860px) {
+    #app { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; align-items: center; }
+    .nav { flex-direction: row; flex-wrap: wrap; }
+    .order-layout { flex-direction: column; }
+    .order-panel { width: 100%; position: static; }
+  }
+</style>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">Order&nbsp;App</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="order">Order</button>
+        <button class="nav-btn" data-view="sales">Sales</button>
+        <button class="nav-btn" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="menu">Menu Management</button>
+      </nav>
+      <div class="theme-toggle">
+        <span>Light</span>
+        <label class="switch">
+          <input type="checkbox" id="themeSwitch">
+          <span class="slider"></span>
+        </label>
+        <span>Dark</span>
+      </div>
+    </aside>
+
+    <main class="content">
+<section class="view active" data-view-section="order">
+  <h1 class="view-title">New Order</h1>
+
+  <div class="order-layout">
+    <div class="menu-panel">
+      <div class="toolbar">
+        <input type="text" class="search-input" id="menuSearch" placeholder="Search menu items...">
+      </div>
+      <div class="pills" id="categoryPills">
+        <button class="pill active" data-category="All Menu">All Menu</button>
+        <button class="pill" data-category="Meals">Meals</button>
+        <button class="pill" data-category="Drinks">Drinks</button>
+        <button class="pill" data-category="Dessert">Dessert</button>
+        <button class="pill" data-category="Specials">Specials</button>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+    <div class="order-panel">
+      <div class="card order-summary">
+        <div class="order-id">Order ID: <span id="orderIdLabel">—</span></div>
+
+        <select class="staff-select" id="staffSelect">
+          <option value="">Select cashier/staff...</option>
+        </select>
+
+        <div class="order-lines" id="orderLines">
+          <div class="empty-order">No items added yet.</div>
+        </div>
+
+        <div class="totals-row"><span>Subtotal</span><span id="subtotalLabel">₱0.00</span></div>
+        <div class="totals-row"><span>Tax (10%)</span><span id="taxLabel">₱0.00</span></div>
+        <div class="totals-row total"><span>Total</span><span id="totalLabel">₱0.00</span></div>
+
+        <button class="btn btn-primary" id="confirmOrderBtn" style="margin-top:12px;" disabled>Confirm Order</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="view" data-view-section="sales">
+  <h1 class="view-title">Sales History</h1>
+  <div class="card" style="padding:6px; overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr><th>Order ID</th><th>Date/Time</th><th>Cashier</th><th>Items</th><th>Total</th></tr>
+      </thead>
+      <tbody id="salesTableBody">
+        <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="view" data-view-section="dashboard">
+  <h1 class="view-title">Dashboard</h1>
+
+  <div class="stat-grid">
+    <div class="card stat-card">
+      <div class="label">Total Earnings (SRP)</div>
+      <div class="value accent" id="statEarningsSRP">₱0.00</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Total Earnings (RSP, hypothetical)</div>
+      <div class="value" id="statEarningsRSP">₱0.00</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Total Profit</div>
+      <div class="value accent" id="statProfit">₱0.00</div>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <h3>Monthly Sales Overview</h3>
+    <div class="bar-chart" id="monthlyBarChart"></div>
+  </div>
+
+  <div class="card chart-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <h3 style="margin:0;">Most Ordered Items</h3>
+      <div class="pills" id="dashboardPeriodPills">
+        <button class="pill" data-period="daily">Daily</button>
+        <button class="pill" data-period="weekly">Weekly</button>
+        <button class="pill active" data-period="monthly">Monthly</button>
+      </div>
+    </div>
+    <div class="top-items-list" id="topItemsList"></div>
+  </div>
+</section>
+
+<section class="view" data-view-section="menu">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <h1 class="view-title" style="margin:0;">Menu Management</h1>
+    <button class="btn btn-primary" style="width:auto;" id="addItemBtn">+ Add New Item</button>
+  </div>
+  <div class="menu-manage-grid" id="menuManageGrid"></div>
+</section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="modalRoot" class="modal-root"></div>
+  <div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- State -----------------------------------------------------------
+  var state = {
+    menu: [],
+    staff: [],
+    category: 'All Menu',
+    search: '',
+    order: {},        // itemId -> { item, qty }
+    dashboardPeriod: 'monthly'
+  };
+
+  // ---- Boot --------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', function () {
+    initTheme();
+    initNav();
+    initOrderView();
+    initMenuManagementView();
+    initDashboardView();
+
+    loadStaff();
+    loadMenu();
+    loadSales();
+    loadDashboard();
+  });
+
+  // ---- Theme ---------------------------------------------------------------
+  function initTheme() {
+    var saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    var sw = document.getElementById('themeSwitch');
+    sw.checked = saved === 'dark';
+    sw.addEventListener('change', function () {
+      var theme = sw.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    });
+  }
+
+  // ---- Navigation ------------------------------------------------------
+  function initNav() {
+    var buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var view = btn.getAttribute('data-view');
+        document.querySelectorAll('.view').forEach(function (v) {
+          v.classList.toggle('active', v.getAttribute('data-view-section') === view);
+        });
+      });
+    });
+  }
+
+  // ---- Shared helpers ----------------------------------------------------
+  function money(n) { return '₱' + (Math.round(Number(n) * 100) / 100).toFixed(2); }
+
+  function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+  function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+  var toastTimer = null;
+  function showToast(message, isError) {
+    var el = document.getElementById('toast');
+    el.textContent = message;
+    el.classList.toggle('error', !!isError);
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3500);
+  }
+
+  function onError(err) {
+    hideLoading();
+    showToast((err && err.message) ? err.message : String(err), true);
+  }
+
+  function openModal(html) {
+    document.getElementById('modalRoot').innerHTML =
+      '<div class="modal-backdrop"><div class="modal">' + html + '</div></div>';
+    document.getElementById('modalRoot').querySelector('.modal-backdrop').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+  }
+  function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+  window.closeModal = closeModal;
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // =========================================================================
+  // ORDER VIEW
+  // =========================================================================
+  function initOrderView() {
+    document.getElementById('menuSearch').addEventListener('input', function (e) {
+      state.search = e.target.value.toLowerCase();
+      renderMenuGrid();
+    });
+    document.querySelectorAll('#categoryPills .pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        document.querySelectorAll('#categoryPills .pill').forEach(function (p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        state.category = pill.getAttribute('data-category');
+        renderMenuGrid();
+      });
+    });
+    document.getElementById('confirmOrderBtn').addEventListener('click', onConfirmOrder);
+  }
+
+  function loadMenu() {
+    google.script.run.withSuccessHandler(function (menu) {
+      state.menu = menu || [];
+      renderMenuGrid();
+      renderMenuManageGrid();
+    }).withFailureHandler(onError).getMenuData();
+  }
+
+  function loadStaff() {
+    google.script.run.withSuccessHandler(function (staff) {
+      state.staff = staff || [];
+      var select = document.getElementById('staffSelect');
+      select.innerHTML = '<option value="">Select cashier/staff...</option>' +
+        state.staff.map(function (name) { return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>'; }).join('');
+    }).withFailureHandler(onError).getStaffList();
+  }
+
+  function filteredMenu() {
+    return state.menu.filter(function (item) {
+      var matchesCategory = state.category === 'All Menu' || item.category === state.category;
+      var matchesSearch = !state.search || item.name.toLowerCase().indexOf(state.search) !== -1;
+      return matchesCategory && matchesSearch;
+    });
+  }
+
+  function orderQtyFor(itemId) {
+    return state.order[itemId] ? state.order[itemId].qty : 0;
+  }
+
+  function renderMenuGrid() {
+    var grid = document.getElementById('menuGrid');
+    var items = filteredMenu();
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-order">No menu items found.</div>';
+      return;
+    }
+    grid.innerHTML = items.map(function (item) {
+      var qty = orderQtyFor(item.itemId);
+      var outOfStock = item.quantity <= 0;
+      var atMax = qty >= item.quantity;
+      return '' +
+        '<div class="card menu-card' + (outOfStock ? ' unavailable' : '') + '">' +
+        (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="">' : '<div style="width:100%;height:100px;border-radius:8px;background:var(--surface-2);"></div>') +
+        '<div class="name">' + escapeHtml(item.name) + '</div>' +
+        '<div class="price">' + money(item.srp) + '</div>' +
+        (outOfStock
+          ? '<div class="not-available-badge">Not Available</div>'
+          : '<div class="stock">' + item.quantity + ' in stock</div>') +
+        '<div class="stepper">' +
+        '<button data-action="dec" data-id="' + item.itemId + '" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+        '<span class="qty">' + qty + '</span>' +
+        '<button data-action="inc" data-id="' + item.itemId + '" ' + (outOfStock || atMax ? 'disabled' : '') + '>+</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    grid.querySelectorAll('.stepper button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        var delta = btn.getAttribute('data-action') === 'inc' ? 1 : -1;
+        adjustOrderQty(id, delta);
+      });
+    });
+  }
+
+  function adjustOrderQty(itemId, delta) {
+    var item = state.menu.filter(function (m) { return m.itemId === itemId; })[0];
+    if (!item) return;
+    var current = orderQtyFor(itemId);
+    var next = current + delta;
+    if (next <= 0) {
+      delete state.order[itemId];
+    } else if (next > item.quantity) {
+      showToast('Only ' + item.quantity + ' left in stock.', true);
+      return;
+    } else {
+      state.order[itemId] = { item: item, qty: next };
+    }
+    renderMenuGrid();
+    renderOrderSummary();
+  }
+
+  function removeOrderLine(itemId) {
+    delete state.order[itemId];
+    renderMenuGrid();
+    renderOrderSummary();
+  }
+  window.removeOrderLine = removeOrderLine;
+
+  function orderTotals() {
+    var subtotal = 0;
+    Object.keys(state.order).forEach(function (id) {
+      var line = state.order[id];
+      subtotal += line.item.srp * line.qty;
+    });
+    subtotal = Math.round(subtotal * 100) / 100;
+    var tax = Math.round(subtotal * 0.10 * 100) / 100;
+    var total = Math.round((subtotal + tax) * 100) / 100;
+    return { subtotal: subtotal, tax: tax, total: total };
+  }
+
+  function renderOrderSummary() {
+    var linesEl = document.getElementById('orderLines');
+    var ids = Object.keys(state.order);
+    if (!ids.length) {
+      linesEl.innerHTML = '<div class="empty-order">No items added yet.</div>';
+    } else {
+      linesEl.innerHTML = ids.map(function (id) {
+        var line = state.order[id];
+        return '' +
+          '<div class="order-line">' +
+          '<span>' + escapeHtml(line.item.name) + ' × ' + line.qty + '</span>' +
+          '<span style="display:flex;align-items:center;gap:8px;">' + money(line.item.srp * line.qty) +
+          '<button class="remove-btn" onclick="removeOrderLine(\'' + id + '\')" title="Remove">×</button></span>' +
+          '</div>';
+      }).join('');
+    }
+
+    var totals = orderTotals();
+    document.getElementById('subtotalLabel').textContent = money(totals.subtotal);
+    document.getElementById('taxLabel').textContent = money(totals.tax);
+    document.getElementById('totalLabel').textContent = money(totals.total);
+
+    var staffSelected = !!document.getElementById('staffSelect').value;
+    document.getElementById('confirmOrderBtn').disabled = !ids.length || !staffSelected;
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'staffSelect') renderOrderSummary();
+  });
+
+  function onConfirmOrder() {
+    var user = document.getElementById('staffSelect').value;
+    var ids = Object.keys(state.order);
+    if (!user || !ids.length) return;
+
+    var payload = {
+      user: user,
+      items: ids.map(function (id) {
+        var line = state.order[id];
+        return { itemId: id, name: line.item.name, category: line.item.category, qty: line.qty, srp: line.item.srp };
+      })
+    };
+
+    showLoading();
+    google.script.run.withSuccessHandler(function (result) {
+      hideLoading();
+      document.getElementById('orderIdLabel').textContent = result.orderId;
+      showToast('Order ' + result.orderId + ' confirmed — receipt emailed.');
+      state.order = {};
+      document.getElementById('staffSelect').value = '';
+      renderOrderSummary();
+      loadMenu();
+      loadSales();
+      loadDashboard();
+      setTimeout(function () {
+        document.getElementById('orderIdLabel').textContent = '—';
+      }, 4000);
+    }).withFailureHandler(onError).confirmOrder(payload);
+  }
+
+  // =========================================================================
+  // SALES VIEW
+  // =========================================================================
+  function loadSales() {
+    google.script.run.withSuccessHandler(renderSalesTable).withFailureHandler(onError).getSalesList();
+  }
+
+  function renderSalesTable(sales) {
+    var body = document.getElementById('salesTableBody');
+    if (!sales || !sales.length) {
+      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No sales yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = sales.map(function (s) {
+      return '<tr data-order-id="' + s.orderId + '">' +
+        '<td>' + s.orderId + '</td>' +
+        '<td>' + new Date(s.timestamp).toLocaleString() + '</td>' +
+        '<td>' + escapeHtml(s.user) + '</td>' +
+        '<td>' + s.itemCount + '</td>' +
+        '<td>' + money(s.total) + '</td>' +
+        '</tr>';
+    }).join('');
+    body.querySelectorAll('tr').forEach(function (row) {
+      row.addEventListener('click', function () { openOrderDetail(row.getAttribute('data-order-id')); });
+    });
+  }
+
+  function openOrderDetail(orderId) {
+    showLoading();
+    google.script.run.withSuccessHandler(function (order) {
+      hideLoading();
+      var rows = order.items.map(function (it) {
+        return '<tr><td>' + escapeHtml(it.name) + '</td><td style="text-align:center;">' + it.qty + '</td>' +
+          '<td style="text-align:right;">' + money(it.srp) + '</td><td style="text-align:right;">' + money(it.lineTotal) + '</td></tr>';
+      }).join('');
+      openModal(
+        '<h2>Order ' + order.orderId + '</h2>' +
+        '<p style="font-size:13px;color:var(--text-muted);margin-top:-8px;">' +
+        new Date(order.timestamp).toLocaleString() + ' · ' + escapeHtml(order.user) + '</p>' +
+        '<table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th style="text-align:right;">Price</th><th style="text-align:right;">Total</th></tr></thead><tbody>' +
+        rows + '</tbody></table>' +
+        '<div style="margin-top:12px;text-align:right;font-size:13px;color:var(--text-muted);">' +
+        'Subtotal: ' + money(order.subtotal) + '<br>Tax: ' + money(order.tax) +
+        '<br><b style="color:var(--text);">Total: ' + money(order.total) + '</b></div>' +
+        '<div class="modal-actions">' +
+        '<button class="btn btn-secondary" onclick="closeModal()">Close</button>' +
+        '<button class="btn btn-primary" id="regenReceiptBtn">Generate Receipt Again</button>' +
+        '</div>'
+      );
+      document.getElementById('regenReceiptBtn').addEventListener('click', function () {
+        showLoading();
+        google.script.run.withSuccessHandler(function () {
+          hideLoading();
+          showToast('Receipt regenerated and emailed.');
+          closeModal();
+        }).withFailureHandler(onError).regenerateReceiptForOrder(orderId);
+      });
+    }).withFailureHandler(onError).getOrderDetail(orderId);
+  }
+
+  // =========================================================================
+  // DASHBOARD VIEW
+  // =========================================================================
+  function initDashboardView() {
+    document.querySelectorAll('#dashboardPeriodPills .pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        document.querySelectorAll('#dashboardPeriodPills .pill').forEach(function (p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        state.dashboardPeriod = pill.getAttribute('data-period');
+        loadDashboard();
+      });
+    });
+  }
+
+  function loadDashboard() {
+    google.script.run.withSuccessHandler(renderDashboard).withFailureHandler(onError).getDashboardData(state.dashboardPeriod);
+  }
+
+  function renderDashboard(data) {
+    document.getElementById('statEarningsSRP').textContent = money(data.totalEarningsSRP);
+    document.getElementById('statEarningsRSP').textContent = money(data.totalEarningsRSP);
+    document.getElementById('statProfit').textContent = money(data.totalProfit);
+
+    var maxMonth = Math.max.apply(null, data.monthlySales.map(function (m) { return m.total; }).concat([1]));
+    document.getElementById('monthlyBarChart').innerHTML = data.monthlySales.length
+      ? data.monthlySales.map(function (m) {
+        var pct = Math.round((m.total / maxMonth) * 100);
+        return '<div class="bar-col"><div class="bar" style="height:' + pct + '%;" title="' + money(m.total) + '"></div><div class="bar-label">' + m.month + '</div></div>';
+      }).join('')
+      : '<div class="empty-order">No sales data yet.</div>';
+
+    var maxQty = Math.max.apply(null, data.mostOrderedItems.map(function (i) { return i.qty; }).concat([1]));
+    document.getElementById('topItemsList').innerHTML = data.mostOrderedItems.length
+      ? data.mostOrderedItems.map(function (i) {
+        var pct = Math.round((i.qty / maxQty) * 100);
+        return '<div class="top-item-row"><span class="name">' + escapeHtml(i.name) + '</span>' +
+          '<span class="bar-track"><span class="bar-fill" style="width:' + pct + '%;"></span></span>' +
+          '<span class="qty">' + i.qty + '</span></div>';
+      }).join('')
+      : '<div class="empty-order">No orders in this period.</div>';
+  }
+
+  // =========================================================================
+  // MENU MANAGEMENT VIEW
+  // =========================================================================
+  function initMenuManagementView() {
+    document.getElementById('addItemBtn').addEventListener('click', function () { openItemForm(null); });
+  }
+
+  function renderMenuManageGrid() {
+    var grid = document.getElementById('menuManageGrid');
+    if (!state.menu.length) {
+      grid.innerHTML = '<div class="empty-order">No menu items yet — add your first one.</div>';
+      return;
+    }
+    grid.innerHTML = state.menu.map(function (item) {
+      return '' +
+        '<div class="card manage-card">' +
+        (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="">' : '<div style="width:100%;height:90px;border-radius:8px;background:var(--surface-2);"></div>') +
+        '<div class="name">' + escapeHtml(item.name) + '</div>' +
+        '<div class="stock">' + escapeHtml(item.category) + ' · RSP ' + money(item.rsp) + ' · SRP ' + money(item.srp) + '</div>' +
+        '<div class="stock">Stock: ' + item.quantity + '</div>' +
+        '<div class="actions">' +
+        '<button class="btn btn-secondary" data-edit="' + item.itemId + '">Edit</button>' +
+        '<button class="btn btn-secondary" data-stock="' + item.itemId + '">Stock</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    grid.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openItemForm(btn.getAttribute('data-edit')); });
+    });
+    grid.querySelectorAll('[data-stock]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openStockForm(btn.getAttribute('data-stock')); });
+    });
+  }
+
+  function openItemForm(itemId) {
+    var item = itemId ? state.menu.filter(function (m) { return m.itemId === itemId; })[0] : null;
+    var isEdit = !!item;
+
+    openModal(
+      '<h2>' + (isEdit ? 'Edit Item' : 'Add New Item') + '</h2>' +
+      '<form id="itemForm">' +
+      '<div class="form-row"><label>Category</label><select name="category">' +
+      ['Meals', 'Drinks', 'Dessert', 'Specials'].map(function (c) {
+        return '<option value="' + c + '"' + (item && item.category === c ? ' selected' : '') + '>' + c + '</option>';
+      }).join('') + '</select></div>' +
+      '<div class="form-row"><label>Name</label><input name="name" required value="' + (item ? escapeHtml(item.name) : '') + '"></div>' +
+      '<div class="form-row"><label>RSP Price</label><input name="rsp" type="number" step="0.01" min="0" required value="' + (item ? item.rsp : '') + '"></div>' +
+      '<div class="form-row"><label>SRP Price</label><input name="srp" type="number" step="0.01" min="0" required value="' + (item ? item.srp : '') + '"></div>' +
+      (isEdit ? '' : '<div class="form-row"><label>Starting Quantity</label><input name="quantity" type="number" min="0" required value="0"></div>') +
+      '<div class="form-row"><label>Food Image' + (isEdit ? ' (optional — leave blank to keep current)' : '') + '</label><input name="image" type="file" accept="image/*"></div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="submit" class="btn btn-primary">' + (isEdit ? 'Save Changes' : 'Add Item') + '</button>' +
+      '</div>' +
+      '</form>'
+    );
+
+    document.getElementById('itemForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = e.target;
+      var fileInput = form.image;
+      var basePayload = {
+        category: form.category.value,
+        name: form.name.value,
+        rsp: parseFloat(form.rsp.value),
+        srp: parseFloat(form.srp.value)
+      };
+      if (!isEdit) basePayload.quantity = parseInt(form.quantity.value, 10) || 0;
+
+      function submitWithImage(imageData) {
+        if (imageData) {
+          basePayload.imageBase64 = imageData.base64;
+          basePayload.imageMimeType = imageData.mimeType;
+          basePayload.imageName = imageData.name;
+        }
+        showLoading();
+        var onDone = function (menu) {
+          state.menu = menu;
+          hideLoading();
+          renderMenuGrid();
+          renderMenuManageGrid();
+          closeModal();
+          showToast(isEdit ? 'Item updated.' : 'Item added.');
+        };
+        if (isEdit) {
+          google.script.run.withSuccessHandler(onDone).withFailureHandler(onError).updateMenuItem(itemId, basePayload);
+        } else {
+          google.script.run.withSuccessHandler(onDone).withFailureHandler(onError).addMenuItem(basePayload);
+        }
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+          var base64 = reader.result.split(',')[1];
+          submitWithImage({ base64: base64, mimeType: file.type, name: file.name });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        submitWithImage(null);
+      }
+    });
+  }
+
+  function openStockForm(itemId) {
+    var item = state.menu.filter(function (m) { return m.itemId === itemId; })[0];
+    if (!item) return;
+
+    openModal(
+      '<h2>Adjust Stock — ' + escapeHtml(item.name) + '</h2>' +
+      '<p style="font-size:13px;color:var(--text-muted);margin-top:-8px;">Current stock: ' + item.quantity + '</p>' +
+      '<form id="stockForm">' +
+      '<div class="form-row"><label>Staff</label><select name="user" required>' +
+      '<option value="">Select...</option>' +
+      state.staff.map(function (n) { return '<option value="' + escapeHtml(n) + '">' + escapeHtml(n) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="form-row"><label>Quantity</label><input name="qty" type="number" min="1" step="1" required value="1"></div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="submit" class="btn btn-danger" data-action="Delete">Delete</button>' +
+      '<button type="submit" class="btn btn-primary" data-action="Add">Add</button>' +
+      '</div>' +
+      '</form>'
+    );
+
+    var form = document.getElementById('stockForm');
+    var submittedAction = 'Add';
+    form.querySelectorAll('button[data-action]').forEach(function (btn) {
+      btn.addEventListener('click', function () { submittedAction = btn.getAttribute('data-action'); });
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.user.value) { showToast('Please select a staff member.', true); return; }
+      showLoading();
+      google.script.run.withSuccessHandler(function (menu) {
+        state.menu = menu;
+        hideLoading();
+        renderMenuGrid();
+        renderMenuManageGrid();
+        closeModal();
+        showToast('Stock updated.');
+      }).withFailureHandler(onError).changeStock(itemId, submittedAction, parseInt(form.qty.value, 10), form.user.value);
+    });
+  }
+})();
+</script>
+</body>
+</html>
