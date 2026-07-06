@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">Order&nbsp;App</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="order">Order</button>
+        <button class="nav-btn" data-view="sales">Sales</button>
+        <button class="nav-btn" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="menu">Menu Management</button>
+      </nav>
+      <div class="theme-toggle">
+        <span>Light</span>
+        <label class="switch">
+          <input type="checkbox" id="themeSwitch">
+          <span class="slider"></span>
+        </label>
+        <span>Dark</span>
+      </div>
+    </aside>
+
+    <main class="content">
+      <?!= include('OrderView'); ?>
+      <?!= include('SalesView'); ?>
+      <?!= include('DashboardView'); ?>
+      <?!= include('MenuManagementView'); ?>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="modalRoot" class="modal-root"></div>
+  <div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+  <?!= include('Scripts'); ?>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<script>
+(function () {
+  'use strict';
+
+  // ---- State -----------------------------------------------------------
+  var state = {
+    menu: [],
+    staff: [],
+    category: 'All Menu',
+    search: '',
+    order: {},        // itemId -> { item, qty }
+    dashboardPeriod: 'monthly'
+  };
+
+  // ---- Boot --------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', function () {
+    initTheme();
+    initNav();
+    initOrderView();
+    initMenuManagementView();
+    initDashboardView();
+
+    loadStaff();
+    loadMenu();
+    loadSales();
+    loadDashboard();
+  });
+
+  // ---- Theme ---------------------------------------------------------------
+  function initTheme() {
+    var saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    var sw = document.getElementById('themeSwitch');
+    sw.checked = saved === 'dark';
+    sw.addEventListener('change', function () {
+      var theme = sw.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    });
+  }
+
+  // ---- Navigation ------------------------------------------------------
+  function initNav() {
+    var buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var view = btn.getAttribute('data-view');
+        document.querySelectorAll('.view').forEach(function (v) {
+          v.classList.toggle('active', v.getAttribute('data-view-section') === view);
+        });
+      });
+    });
+  }
+
+  // ---- Shared helpers ----------------------------------------------------
+  function money(n) { return '₱' + (Math.round(Number(n) * 100) / 100).toFixed(2); }
+
+  function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+  function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+  var toastTimer = null;
+  function showToast(message, isError) {
+    var el = document.getElementById('toast');
+    el.textContent = message;
+    el.classList.toggle('error', !!isError);
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3500);
+  }
+
+  function onError(err) {
+    hideLoading();
+    showToast((err && err.message) ? err.message : String(err), true);
+  }
+
+  function openModal(html) {
+    document.getElementById('modalRoot').innerHTML =
+      '<div class="modal-backdrop"><div class="modal">' + html + '</div></div>';
+    document.getElementById('modalRoot').querySelector('.modal-backdrop').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+  }
+  function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+  window.closeModal = closeModal;
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // =========================================================================
+  // ORDER VIEW
+  // =========================================================================
+  function initOrderView() {
+    document.getElementById('menuSearch').addEventListener('input', function (e) {
+      state.search = e.target.value.toLowerCase();
+      renderMenuGrid();
+    });
+    document.querySelectorAll('#categoryPills .pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        document.querySelectorAll('#categoryPills .pill').forEach(function (p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        state.category = pill.getAttribute('data-category');
+        renderMenuGrid();
+      });
+    });
+    document.getElementById('confirmOrderBtn').addEventListener('click', onConfirmOrder);
+  }
+
+  function loadMenu() {
+    google.script.run.withSuccessHandler(function (menu) {
+      state.menu = menu || [];
+      renderMenuGrid();
+      renderMenuManageGrid();
+    }).withFailureHandler(onError).getMenuData();
+  }
+
+  function loadStaff() {
+    google.script.run.withSuccessHandler(function (staff) {
+      state.staff = staff || [];
+      var select = document.getElementById('staffSelect');
+      select.innerHTML = '<option value="">Select cashier/staff...</option>' +
+        state.staff.map(function (name) { return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>'; }).join('');
+    }).withFailureHandler(onError).getStaffList();
+  }
+
+  function filteredMenu() {
+    return state.menu.filter(function (item) {
+      var matchesCategory = state.category === 'All Menu' || item.category === state.category;
+      var matchesSearch = !state.search || item.name.toLowerCase().indexOf(state.search) !== -1;
+      return matchesCategory && matchesSearch;
+    });
+  }
+
+  function orderQtyFor(itemId) {
+    return state.order[itemId] ? state.order[itemId].qty : 0;
+  }
+
+  function renderMenuGrid() {
+    var grid = document.getElementById('menuGrid');
+    var items = filteredMenu();
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-order">No menu items found.</div>';
+      return;
+    }
+    grid.innerHTML = items.map(function (item) {
+      var qty = orderQtyFor(item.itemId);
+      var outOfStock = item.quantity <= 0;
+      var atMax = qty >= item.quantity;
+      return '' +
+        '<div class="card menu-card' + (outOfStock ? ' unavailable' : '') + '">' +
+        (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="">' : '<div style="width:100%;height:100px;border-radius:8px;background:var(--surface-2);"></div>') +
+        '<div class="name">' + escapeHtml(item.name) + '</div>' +
+        '<div class="price">' + money(item.srp) + '</div>' +
+        (outOfStock
+          ? '<div class="not-available-badge">Not Available</div>'
+          : '<div class="stock">' + item.quantity + ' in stock</div>') +
+        '<div class="stepper">' +
+        '<button data-action="dec" data-id="' + item.itemId + '" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+        '<span class="qty">' + qty + '</span>' +
+        '<button data-action="inc" data-id="' + item.itemId + '" ' + (outOfStock || atMax ? 'disabled' : '') + '>+</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    grid.querySelectorAll('.stepper button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        var delta = btn.getAttribute('data-action') === 'inc' ? 1 : -1;
+        adjustOrderQty(id, delta);
+      });
+    });
+  }
+
+  function adjustOrderQty(itemId, delta) {
+    var item = state.menu.filter(function (m) { return m.itemId === itemId; })[0];
+    if (!item) return;
+    var current = orderQtyFor(itemId);
+    var next = current + delta;
+    if (next <= 0) {
+      delete state.order[itemId];
+    } else if (next > item.quantity) {
+      showToast('Only ' + item.quantity + ' left in stock.', true);
+      return;
+    } else {
+      state.order[itemId] = { item: item, qty: next };
+    }
+    renderMenuGrid();
+    renderOrderSummary();
+  }
+
+  function removeOrderLine(itemId) {
+    delete state.order[itemId];
+    renderMenuGrid();
+    renderOrderSummary();
+  }
+  window.removeOrderLine = removeOrderLine;
+
+  function orderTotals() {
+    var subtotal = 0;
+    Object.keys(state.order).forEach(function (id) {
+      var line = state.order[id];
+      subtotal += line.item.srp * line.qty;
+    });
+    subtotal = Math.round(subtotal * 100) / 100;
+    var tax = Math.round(subtotal * 0.10 * 100) / 100;
+    var total = Math.round((subtotal + tax) * 100) / 100;
+    return { subtotal: subtotal, tax: tax, total: total };
+  }
+
+  function renderOrderSummary() {
+    var linesEl = document.getElementById('orderLines');
+    var ids = Object.keys(state.order);
+    if (!ids.length) {
+      linesEl.innerHTML = '<div class="empty-order">No items added yet.</div>';
+    } else {
+      linesEl.innerHTML = ids.map(function (id) {
+        var line = state.order[id];
+        return '' +
+          '<div class="order-line">' +
+          '<span>' + escapeHtml(line.item.name) + ' × ' + line.qty + '</span>' +
+          '<span style="display:flex;align-items:center;gap:8px;">' + money(line.item.srp * line.qty) +
+          '<button class="remove-btn" onclick="removeOrderLine(\'' + id + '\')" title="Remove">×</button></span>' +
+          '</div>';
+      }).join('');
+    }
+
+    var totals = orderTotals();
+    document.getElementById('subtotalLabel').textContent = money(totals.subtotal);
+    document.getElementById('taxLabel').textContent = money(totals.tax);
+    document.getElementById('totalLabel').textContent = money(totals.total);
+
+    var staffSelected = !!document.getElementById('staffSelect').value;
+    document.getElementById('confirmOrderBtn').disabled = !ids.length || !staffSelected;
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'staffSelect') renderOrderSummary();
+  });
+
+  function onConfirmOrder() {
+    var user = document.getElementById('staffSelect').value;
+    var ids = Object.keys(state.order);
+    if (!user || !ids.length) return;
+
+    var payload = {
+      user: user,
+      items: ids.map(function (id) {
+        var line = state.order[id];
+        return { itemId: id, name: line.item.name, category: line.item.category, qty: line.qty, srp: line.item.srp };
+      })
+    };
+
+    showLoading();
+    google.script.run.withSuccessHandler(function (result) {
+      hideLoading();
+      document.getElementById('orderIdLabel').textContent = result.orderId;
+      showToast('Order ' + result.orderId + ' confirmed — receipt emailed.');
+      state.order = {};
+      document.getElementById('staffSelect').value = '';
+      renderOrderSummary();
+      loadMenu();
+      loadSales();
+      loadDashboard();
+      setTimeout(function () {
+        document.getElementById('orderIdLabel').textContent = '—';
+      }, 4000);
+    }).withFailureHandler(onError).confirmOrder(payload);
+  }
+
+  // =========================================================================
+  // SALES VIEW
+  // =========================================================================
+  function loadSales() {
+    google.script.run.withSuccessHandler(renderSalesTable).withFailureHandler(onError).getSalesList();
+  }
+
+  function renderSalesTable(sales) {
+    var body = document.getElementById('salesTableBody');
+    if (!sales || !sales.length) {
+      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No sales yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = sales.map(function (s) {
+      return '<tr data-order-id="' + s.orderId + '">' +
+        '<td>' + s.orderId + '</td>' +
+        '<td>' + new Date(s.timestamp).toLocaleString() + '</td>' +
+        '<td>' + escapeHtml(s.user) + '</td>' +
+        '<td>' + s.itemCount + '</td>' +
+        '<td>' + money(s.total) + '</td>' +
+        '</tr>';
+    }).join('');
+    body.querySelectorAll('tr').forEach(function (row) {
+      row.addEventListener('click', function () { openOrderDetail(row.getAttribute('data-order-id')); });
+    });
+  }
+
+  function openOrderDetail(orderId) {
+    showLoading();
+    google.script.run.withSuccessHandler(function (order) {
+      hideLoading();
+      var rows = order.items.map(function (it) {
+        return '<tr><td>' + escapeHtml(it.name) + '</td><td style="text-align:center;">' + it.qty + '</td>' +
+          '<td style="text-align:right;">' + money(it.srp) + '</td><td style="text-align:right;">' + money(it.lineTotal) + '</td></tr>';
+      }).join('');
+      openModal(
+        '<h2>Order ' + order.orderId + '</h2>' +
+        '<p style="font-size:13px;color:var(--text-muted);margin-top:-8px;">' +
+        new Date(order.timestamp).toLocaleString() + ' · ' + escapeHtml(order.user) + '</p>' +
+        '<table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th style="text-align:right;">Price</th><th style="text-align:right;">Total</th></tr></thead><tbody>' +
+        rows + '</tbody></table>' +
+        '<div style="margin-top:12px;text-align:right;font-size:13px;color:var(--text-muted);">' +
+        'Subtotal: ' + money(order.subtotal) + '<br>Tax: ' + money(order.tax) +
+        '<br><b style="color:var(--text);">Total: ' + money(order.total) + '</b></div>' +
+        '<div class="modal-actions">' +
+        '<button class="btn btn-secondary" onclick="closeModal()">Close</button>' +
+        '<button class="btn btn-primary" id="regenReceiptBtn">Generate Receipt Again</button>' +
+        '</div>'
+      );
+      document.getElementById('regenReceiptBtn').addEventListener('click', function () {
+        showLoading();
+        google.script.run.withSuccessHandler(function () {
+          hideLoading();
+          showToast('Receipt regenerated and emailed.');
+          closeModal();
+        }).withFailureHandler(onError).regenerateReceiptForOrder(orderId);
+      });
+    }).withFailureHandler(onError).getOrderDetail(orderId);
+  }
+
+  // =========================================================================
+  // DASHBOARD VIEW
+  // =========================================================================
+  function initDashboardView() {
+    document.querySelectorAll('#dashboardPeriodPills .pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        document.querySelectorAll('#dashboardPeriodPills .pill').forEach(function (p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        state.dashboardPeriod = pill.getAttribute('data-period');
+        loadDashboard();
+      });
+    });
+  }
+
+  function loadDashboard() {
+    google.script.run.withSuccessHandler(renderDashboard).withFailureHandler(onError).getDashboardData(state.dashboardPeriod);
+  }
+
+  function renderDashboard(data) {
+    document.getElementById('statEarningsSRP').textContent = money(data.totalEarningsSRP);
+    document.getElementById('statEarningsRSP').textContent = money(data.totalEarningsRSP);
+    document.getElementById('statProfit').textContent = money(data.totalProfit);
+
+    var maxMonth = Math.max.apply(null, data.monthlySales.map(function (m) { return m.total; }).concat([1]));
+    document.getElementById('monthlyBarChart').innerHTML = data.monthlySales.length
+      ? data.monthlySales.map(function (m) {
+        var pct = Math.round((m.total / maxMonth) * 100);
+        return '<div class="bar-col"><div class="bar" style="height:' + pct + '%;" title="' + money(m.total) + '"></div><div class="bar-label">' + m.month + '</div></div>';
+      }).join('')
+      : '<div class="empty-order">No sales data yet.</div>';
+
+    var maxQty = Math.max.apply(null, data.mostOrderedItems.map(function (i) { return i.qty; }).concat([1]));
+    document.getElementById('topItemsList').innerHTML = data.mostOrderedItems.length
+      ? data.mostOrderedItems.map(function (i) {
+        var pct = Math.round((i.qty / maxQty) * 100);
+        return '<div class="top-item-row"><span class="name">' + escapeHtml(i.name) + '</span>' +
+          '<span class="bar-track"><span class="bar-fill" style="width:' + pct + '%;"></span></span>' +
+          '<span class="qty">' + i.qty + '</span></div>';
+      }).join('')
+      : '<div class="empty-order">No orders in this period.</div>';
+  }
+
+  // =========================================================================
+  // MENU MANAGEMENT VIEW
+  // =========================================================================
+  function initMenuManagementView() {
+    document.getElementById('addItemBtn').addEventListener('click', function () { openItemForm(null); });
+  }
+
+  function renderMenuManageGrid() {
+    var grid = document.getElementById('menuManageGrid');
+    if (!state.menu.length) {
+      grid.innerHTML = '<div class="empty-order">No menu items yet — add your first one.</div>';
+      return;
+    }
+    grid.innerHTML = state.menu.map(function (item) {
+      return '' +
+        '<div class="card manage-card">' +
+        (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="">' : '<div style="width:100%;height:90px;border-radius:8px;background:var(--surface-2);"></div>') +
+        '<div class="name">' + escapeHtml(item.name) + '</div>' +
+        '<div class="stock">' + escapeHtml(item.category) + ' · RSP ' + money(item.rsp) + ' · SRP ' + money(item.srp) + '</div>' +
+        '<div class="stock">Stock: ' + item.quantity + '</div>' +
+        '<div class="actions">' +
+        '<button class="btn btn-secondary" data-edit="' + item.itemId + '">Edit</button>' +
+        '<button class="btn btn-secondary" data-stock="' + item.itemId + '">Stock</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    grid.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openItemForm(btn.getAttribute('data-edit')); });
+    });
+    grid.querySelectorAll('[data-stock]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openStockForm(btn.getAttribute('data-stock')); });
+    });
+  }
+
+  function openItemForm(itemId) {
+    var item = itemId ? state.menu.filter(function (m) { return m.itemId === itemId; })[0] : null;
+    var isEdit = !!item;
+
+    openModal(
+      '<h2>' + (isEdit ? 'Edit Item' : 'Add New Item') + '</h2>' +
+      '<form id="itemForm">' +
+      '<div class="form-row"><label>Category</label><select name="category">' +
+      ['Meals', 'Drinks', 'Dessert', 'Specials'].map(function (c) {
+        return '<option value="' + c + '"' + (item && item.category === c ? ' selected' : '') + '>' + c + '</option>';
+      }).join('') + '</select></div>' +
+      '<div class="form-row"><label>Name</label><input name="name" required value="' + (item ? escapeHtml(item.name) : '') + '"></div>' +
+      '<div class="form-row"><label>RSP Price</label><input name="rsp" type="number" step="0.01" min="0" required value="' + (item ? item.rsp : '') + '"></div>' +
+      '<div class="form-row"><label>SRP Price</label><input name="srp" type="number" step="0.01" min="0" required value="' + (item ? item.srp : '') + '"></div>' +
+      (isEdit ? '' : '<div class="form-row"><label>Starting Quantity</label><input name="quantity" type="number" min="0" required value="0"></div>') +
+      '<div class="form-row"><label>Food Image' + (isEdit ? ' (optional — leave blank to keep current)' : '') + '</label><input name="image" type="file" accept="image/*"></div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="submit" class="btn btn-primary">' + (isEdit ? 'Save Changes' : 'Add Item') + '</button>' +
+      '</div>' +
+      '</form>'
+    );
+
+    document.getElementById('itemForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = e.target;
+      var fileInput = form.image;
+      var basePayload = {
+        category: form.category.value,
+        name: form.name.value,
+        rsp: parseFloat(form.rsp.value),
+        srp: parseFloat(form.srp.value)
+      };
+      if (!isEdit) basePayload.quantity = parseInt(form.quantity.value, 10) || 0;
+
+      function submitWithImage(imageData) {
+        if (imageData) {
+          basePayload.imageBase64 = imageData.base64;
+          basePayload.imageMimeType = imageData.mimeType;
+          basePayload.imageName = imageData.name;
+        }
+        showLoading();
+        var onDone = function (menu) {
+          state.menu = menu;
+          hideLoading();
+          renderMenuGrid();
+          renderMenuManageGrid();
+          closeModal();
+          showToast(isEdit ? 'Item updated.' : 'Item added.');
+        };
+        if (isEdit) {
+          google.script.run.withSuccessHandler(onDone).withFailureHandler(onError).updateMenuItem(itemId, basePayload);
+        } else {
+          google.script.run.withSuccessHandler(onDone).withFailureHandler(onError).addMenuItem(basePayload);
+        }
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+          var base64 = reader.result.split(',')[1];
+          submitWithImage({ base64: base64, mimeType: file.type, name: file.name });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        submitWithImage(null);
+      }
+    });
+  }
+
+  function openStockForm(itemId) {
+    var item = state.menu.filter(function (m) { return m.itemId === itemId; })[0];
+    if (!item) return;
+
+    openModal(
+      '<h2>Adjust Stock — ' + escapeHtml(item.name) + '</h2>' +
+      '<p style="font-size:13px;color:var(--text-muted);margin-top:-8px;">Current stock: ' + item.quantity + '</p>' +
+      '<form id="stockForm">' +
+      '<div class="form-row"><label>Staff</label><select name="user" required>' +
+      '<option value="">Select...</option>' +
+      state.staff.map(function (n) { return '<option value="' + escapeHtml(n) + '">' + escapeHtml(n) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="form-row"><label>Quantity</label><input name="qty" type="number" min="1" step="1" required value="1"></div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="submit" class="btn btn-danger" data-action="Delete">Delete</button>' +
+      '<button type="submit" class="btn btn-primary" data-action="Add">Add</button>' +
+      '</div>' +
+      '</form>'
+    );
+
+    var form = document.getElementById('stockForm');
+    var submittedAction = 'Add';
+    form.querySelectorAll('button[data-action]').forEach(function (btn) {
+      btn.addEventListener('click', function () { submittedAction = btn.getAttribute('data-action'); });
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.user.value) { showToast('Please select a staff member.', true); return; }
+      showLoading();
+      google.script.run.withSuccessHandler(function (menu) {
+        state.menu = menu;
+        hideLoading();
+        renderMenuGrid();
+        renderMenuManageGrid();
+        closeModal();
+        showToast('Stock updated.');
+      }).withFailureHandler(onError).changeStock(itemId, submittedAction, parseInt(form.qty.value, 10), form.user.value);
+    });
+  }
+})();
+</script>

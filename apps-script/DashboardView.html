@@ -1,0 +1,35 @@
+<section class="view" data-view-section="dashboard">
+  <h1 class="view-title">Dashboard</h1>
+
+  <div class="stat-grid">
+    <div class="card stat-card">
+      <div class="label">Total Earnings (SRP)</div>
+      <div class="value accent" id="statEarningsSRP">₱0.00</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Total Earnings (RSP, hypothetical)</div>
+      <div class="value" id="statEarningsRSP">₱0.00</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Total Profit</div>
+      <div class="value accent" id="statProfit">₱0.00</div>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <h3>Monthly Sales Overview</h3>
+    <div class="bar-chart" id="monthlyBarChart"></div>
+  </div>
+
+  <div class="card chart-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <h3 style="margin:0;">Most Ordered Items</h3>
+      <div class="pills" id="dashboardPeriodPills">
+        <button class="pill" data-period="daily">Daily</button>
+        <button class="pill" data-period="weekly">Weekly</button>
+        <button class="pill active" data-period="monthly">Monthly</button>
+      </div>
+    </div>
+    <div class="top-items-list" id="topItemsList"></div>
+  </div>
+</section>

@@ -1,0 +1,39 @@
+<section class="view active" data-view-section="order">
+  <h1 class="view-title">New Order</h1>
+
+  <div class="order-layout">
+    <div class="menu-panel">
+      <div class="toolbar">
+        <input type="text" class="search-input" id="menuSearch" placeholder="Search menu items...">
+      </div>
+      <div class="pills" id="categoryPills">
+        <button class="pill active" data-category="All Menu">All Menu</button>
+        <button class="pill" data-category="Meals">Meals</button>
+        <button class="pill" data-category="Drinks">Drinks</button>
+        <button class="pill" data-category="Dessert">Dessert</button>
+        <button class="pill" data-category="Specials">Specials</button>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+    <div class="order-panel">
+      <div class="card order-summary">
+        <div class="order-id">Order ID: <span id="orderIdLabel">—</span></div>
+
+        <select class="staff-select" id="staffSelect">
+          <option value="">Select cashier/staff...</option>
+        </select>
+
+        <div class="order-lines" id="orderLines">
+          <div class="empty-order">No items added yet.</div>
+        </div>
+
+        <div class="totals-row"><span>Subtotal</span><span id="subtotalLabel">₱0.00</span></div>
+        <div class="totals-row"><span>Tax (10%)</span><span id="taxLabel">₱0.00</span></div>
+        <div class="totals-row total"><span>Total</span><span id="totalLabel">₱0.00</span></div>
+
+        <button class="btn btn-primary" id="confirmOrderBtn" style="margin-top:12px;" disabled>Confirm Order</button>
+      </div>
+    </div>
+  </div>
+</section>
