@@ -13,15 +13,20 @@ const REQUIRED_KEYS: (keyof PortfolioData)[] = [
 function resolveRelativePaths(data: PortfolioData): PortfolioData {
   const s = data.siteSettings
   const abs = (p: string) => !p || p.startsWith('http') || p.startsWith('/')
+  const rel = (p: string) => abs(p) ? p : `${BASE}${p}`
   return {
     ...data,
     siteSettings: {
       ...s,
-      cvPdf: abs(s.cvPdf) ? s.cvPdf : `${BASE}${s.cvPdf}`,
-      profilePhoto: abs(s.profilePhoto) ? s.profilePhoto : `${BASE}${s.profilePhoto}`,
-      logo: abs(s.logo) ? s.logo : `${BASE}${s.logo}`,
-      favicon: abs(s.favicon) ? s.favicon : `${BASE}${s.favicon}`,
+      cvPdf:        rel(s.cvPdf),
+      profilePhoto: rel(s.profilePhoto),
+      logo:         rel(s.logo),
+      favicon:      rel(s.favicon),
     },
+    projects: data.projects.map(p => ({
+      ...p,
+      image: rel(p.image ?? ''),
+    })),
   }
 }
 
