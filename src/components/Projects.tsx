@@ -2,71 +2,77 @@ import { useState, useEffect, useRef } from 'react'
 
 const BASE = import.meta.env.BASE_URL
 
+// ─── HOW TO ADD IMAGES ───────────────────────────────────────────────────────
+// Place image files in: public/images/projects/
+// Naming convention: <PROJECT_CODE>-1.jpg, <PROJECT_CODE>-2.jpg, etc.
+// Then add the paths to the `images` array below and redeploy.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const PROJECTS = [
   {
     id: 1, title: 'Project Management System', category: 'Project Management', date: '2024 - Present',
     description: 'End-to-end project tracking with task assignment, milestone monitoring, deadline management, and custom SVG dashboard visualizations for a UK-based furniture client.',
     tags: ['AppSheet', 'SVG UI', 'Data Studio', 'Make.com'],
     demo: 'https://www.appsheet.com/start/c334d061-def1-4787-bdab-5d088b5d28fd',
-    images: [
-      `${BASE}images/projects/pm-1.jpg`,
-      `${BASE}images/projects/pm-2.jpg`,
-      `${BASE}images/projects/pm-3.jpg`,
-    ],
+    // Files: public/images/projects/PM-1.jpg, PM-2.jpg, PM-3.jpg
+    images: [`${BASE}images/projects/PM-1.jpg`, `${BASE}images/projects/PM-2.jpg`, `${BASE}images/projects/PM-3.jpg`],
   },
   {
     id: 2, title: 'CRM & Lead Management System', category: 'CRM', date: '2023 - 2024',
     description: 'Advanced CRM for lead tracking and pipeline management with lead scoring, automated Make.com follow-up workflows, conversion tracking, and real-time analytics dashboards.',
     tags: ['AppSheet', 'Make.com', 'Analytics', 'Google Sheets'],
     demo: 'https://www.appsheet.com/start/c1b48401-ad92-478b-98de-5adb9daa7317',
-    images: [
-      `${BASE}images/projects/crm-1.jpg`,
-      `${BASE}images/projects/crm-2.jpg`,
-    ],
+    // Files: public/images/projects/CRM-1.jpg, CRM-2.jpg
+    images: [`${BASE}images/projects/CRM-1.jpg`, `${BASE}images/projects/CRM-2.jpg`],
   },
   {
     id: 3, title: 'Order Management & POS System', category: 'Inventory', date: '2024',
     description: 'Complete point-of-sale and order management with item selection, quantity management, automatic total calculation, and streamlined order processing workflows.',
     tags: ['AppSheet', 'Google Sheets', 'Automation', 'SVG UI'],
     demo: 'https://www.appsheet.com/start/d62f57ca-62b0-417b-a39d-e794f7e474b7',
-    images: [
-      `${BASE}images/projects/pos-1.jpg`,
-    ],
+    // Files: public/images/projects/POS-1.jpg
+    images: [`${BASE}images/projects/POS-1.jpg`],
   },
   {
     id: 4, title: 'University Student Affairs System', category: 'AppSheet', date: '2021 - Present',
     description: 'Multi-department management system for Ateneo de Manila University covering student-facing workflows, automated email notifications, and Data Studio reporting.',
     tags: ['AppSheet', 'Google Apps Script', 'Data Studio', 'SVG UI'],
+    // Files: public/images/projects/USAS-1.jpg, USAS-2.jpg, ...
     images: [],
   },
   {
     id: 5, title: 'Enterprise Ticketing System', category: 'Automation', date: '2024 - 2025',
     description: 'Team-integrated ticketing system with webhook-driven notifications, priority escalation, SLA tracking, and real-time status dashboards for full operational oversight.',
     tags: ['AppSheet', 'N8N', 'Webhooks', 'Make.com'],
+    // Files: public/images/projects/ETS-1.jpg, ETS-2.jpg, ...
     images: [],
   },
   {
     id: 6, title: 'AI-Powered Sales Chatbot', category: 'Automation', date: '2025',
     description: "AI sales assistant integrated into the client's CRM pipeline. Improved lead response times and pipeline visibility through intelligent conversation flows and automated handoffs.",
     tags: ['AI Agents', 'N8N', 'Make.com', 'CRM Integration'],
+    // Files: public/images/projects/AIBOT-1.jpg, AIBOT-2.jpg, ...
     images: [],
   },
   {
     id: 7, title: 'HR Analytics & Recruitment Dashboard', category: 'Dashboards', date: '2017 - 2019',
     description: 'Comprehensive KPI dashboard tracking headcount, turnover rates, and end-to-end recruitment metrics. Reduced hiring time by 35% through data-driven process optimization.',
     tags: ['Data Studio', 'Google Sheets', 'Data Modeling', 'KPI Frameworks'],
+    // Files: public/images/projects/HR-1.jpg, HR-2.jpg, ...
     images: [],
   },
   {
     id: 8, title: 'Logistics Delivery Planning System', category: 'Inventory', date: '2024',
     description: 'Route planning and delivery tracking system providing full operational oversight for a UK furniture retailer, with integrated Data Studio dashboards and vendor management.',
     tags: ['AppSheet', 'Data Studio', 'Google Sheets', 'Automation'],
+    // Files: public/images/projects/LOG-1.jpg, LOG-2.jpg, ...
     images: [],
   },
   {
     id: 9, title: 'Business Website & Lead Gen', category: 'CRM', date: '2023 - 2024',
     description: 'Full business website with optimized user flows, structured content architecture, lead capture integration, and a vendor tracking CRM with automated follow-up sequences.',
     tags: ['Google Sites', 'AppSheet', 'Make.com', 'Analytics'],
+    // Files: public/images/projects/WEB-1.jpg, WEB-2.jpg, ...
     images: [],
   },
 ]
