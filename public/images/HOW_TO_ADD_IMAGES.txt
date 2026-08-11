@@ -1,0 +1,36 @@
+HOW TO ADD IMAGES TO YOUR PORTFOLIO
+=====================================
+
+PROFILE PHOTO
+-------------
+File: public/images/keanu-photo.jpg   ← already in place
+Replace this file with your own photo (same filename, or update Hero.tsx).
+
+LOGO
+----
+File: public/images/LOGO.png
+Drop your logo here. Update Navbar.tsx to reference it if needed.
+
+PROJECT IMAGES
+--------------
+Folder: public/images/projects/
+File naming: use simple lowercase names, e.g.
+  project-management.jpg
+  crm-system.jpg
+  order-pos.jpg
+
+To display a project image in Projects.tsx:
+  Add an "image" field to the project object:
+    image: '/images/projects/project-management.jpg'
+
+  In the card JSX add:
+    {project.image && (
+      <img src={project.image} alt={project.name}
+           className="w-full h-40 object-cover rounded-lg mb-3" />
+    )}
+
+NOTE: For GitHub Pages (ksisondarth.github.io/Superpowers12/) use:
+  image: `${import.meta.env.BASE_URL}images/projects/project-management.jpg`
+
+For Bluehost (your own domain, served from root) use:
+  image: '/images/projects/project-management.jpg'

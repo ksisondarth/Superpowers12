@@ -21,6 +21,12 @@ export const stats = [
   { label: 'Hiring Time Reduced', value: '35%' },
 ]
 
+export const social = {
+  linkedin: 'https://www.linkedin.com/in/keanu-sison-53a182270/',
+  github: 'https://github.com/keansison',
+  whatsapp: 'https://wa.me/639266267336',
+}
+
 export const skillCategories = [
   {
     title: 'AppSheet Development & SVG UI/UX',
