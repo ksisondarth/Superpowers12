@@ -23,8 +23,16 @@ export default function Navbar({ activeSection }: { activeSection: string }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0a0e14]/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-[15px] h-16 flex items-center justify-between">
-        <button onClick={() => scrollTo('home')} className="text-xl font-bold text-gray-900 dark:text-white">
-          KeanSison<span className="text-sm font-normal text-accent">.com</span>
+        <button onClick={() => scrollTo('home')} className="flex items-center gap-2">
+          <img
+            src={`${import.meta.env.BASE_URL}images/LOGO.png`}
+            alt="Keanu Sison logo"
+            className="h-8 w-auto"
+            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          />
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
+            KeanSison<span className="text-sm font-normal text-accent">.com</span>
+          </span>
         </button>
 
         <nav className="hidden md:flex items-center gap-6">
