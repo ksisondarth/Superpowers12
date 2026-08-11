@@ -3,10 +3,15 @@ import { Mail, MapPin, Clock, Send, CheckCircle } from 'lucide-react'
 import { FaLinkedin, FaGithub } from 'react-icons/fa'
 import { personal } from '../data/portfolioData'
 
+// Paste your Google Apps Script Web App URL here after deploying
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'
+
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState('')
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -17,15 +22,35 @@ export default function Contact() {
     return e
   }
 
-  const handleSubmit = (ev: FormEvent) => {
+  const handleSubmit = async (ev: FormEvent) => {
     ev.preventDefault()
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
-    // TODO: plug in EmailJS or backend endpoint here
-    console.log('Contact form submitted:', form)
-    setSubmitted(true)
-    setForm({ name: '', email: '', subject: '', message: '' })
-    setErrors({})
+
+    setSending(true)
+    setSendError('')
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          subject: form.subject || '(no subject)',
+          message: form.message,
+          timestamp: new Date().toISOString(),
+        }),
+      })
+      setSubmitted(true)
+      setForm({ name: '', email: '', subject: '', message: '' })
+      setErrors({})
+    } catch {
+      setSendError('Something went wrong. Please email me directly at ksison001@gmail.com')
+    } finally {
+      setSending(false)
+    }
   }
 
   const set = (field: string) => (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -146,9 +171,16 @@ export default function Contact() {
                   <textarea rows={5} placeholder="Tell me about your project..." value={form.message} onChange={set('message')} className={`${inputCls('message')} resize-none`} />
                   {errors.message && <p className="text-xs text-red-400 mt-1">{errors.message}</p>}
                 </div>
-                <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white dark:text-gray-900 font-semibold text-sm hover:opacity-90 transition-all"
-                  style={{ backgroundColor: 'var(--accent)' }}>
-                  <Send size={15} /> Send Message
+                {sendError && (
+                  <p className="text-xs text-red-400 text-center">{sendError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white dark:text-gray-900 font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                >
+                  <Send size={15} /> {sending ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
             )}
